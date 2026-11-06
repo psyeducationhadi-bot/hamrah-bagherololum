@@ -638,7 +638,7 @@
         <nav class="hidden xl:flex items-center gap-1 text-sm font-semibold text-slate-700">
           <button type="button" onclick="navigateTo('home')" id="nav-home" class="px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-navy-900 transition">صفحه اصلی</button>
           <button type="button" onclick="toggleMegaCategories()" id="nav-categories-btn" class="px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-navy-900 transition flex items-center gap-1">
-            <span>دسته‌بندی‌ها (۱۹)</span>
+            <span>دسته‌بندی‌ها (${(DB.categories || []).length.toLocaleString('fa-IR')})</span>
             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           <button type="button" onclick="navigateTo('explorer')" id="nav-explorer" class="px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-navy-900 transition">کتابخانه محتوا</button>
@@ -673,11 +673,7 @@
             <span id="header-user-label">پنل دانش‌آموز</span>
           </button>
 
-          <!-- Header Cloud Publish Button -->
-          <button type="button" onclick="CloudSync.publishToCloud()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-black bg-emerald-600 text-white hover:bg-emerald-500 shadow-md transition flex items-center gap-1.5" title="انتشار آنلاین تغییرات در سایت">
-            <span>🚀</span>
-            <span class="hidden md:inline">انتشار آنلاین</span>
-          </button>
+          
 
           <!-- Admin CMS Button -->
           <button type="button" id="header-admin-btn" onclick="navigateTo('admin')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-navy-900 text-white hover:bg-navy-800 shadow-sm transition flex items-center gap-1.5">
@@ -698,7 +694,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-base font-extrabold text-navy-900">دسترسی سریع به ۱۹ دسته‌بندی تخصصی همراه باقرالعلوم</h3>
+            <h3 class="text-base font-extrabold text-navy-900">دسترسی سریع به ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی تخصصی همراه باقرالعلوم</h3>
             <p class="text-xs text-slate-500">روی هر دسته‌بندی کلیک کنید تا زیرمجموعه‌ها، مقالات، ویدئوها و فایل‌های آن را مشاهده نمایید</p>
           </div>
           <button type="button" onclick="toggleMegaCategories(false)" class="text-xs font-bold text-slate-500 hover:text-rose-600 px-2.5 py-1 rounded-lg bg-slate-100">بستن ✕</button>
@@ -723,7 +719,7 @@
       </div>
       <div class="grid grid-cols-2 gap-2 text-sm font-bold">
         <button type="button" onclick="navigateTo('home');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">🏠 صفحه اصلی</button>
-        <button type="button" onclick="navigateTo('categories');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">📂 ۱۹ دسته‌بندی</button>
+        <button type="button" onclick="navigateTo('categories');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">📂 ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی</button>
         <button type="button" onclick="navigateTo('explorer');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">📚 کتابخانه محتوا</button>
         <button type="button" onclick="navigateTo('quizzes');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">🧭 آزمون‌های خودارزیابی</button>
         <button type="button" onclick="navigateTo('faq');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">❓ سؤالات پرتکرار</button>
@@ -764,7 +760,7 @@
         <div>
           <h5 class="text-white font-bold text-sm mb-4 border-r-4 border-turquoise-500 pr-2.5">دسترسی سریع</h5>
           <ul class="space-y-2.5 text-xs sm:text-sm">
-            <li><button type="button" onclick="navigateTo('categories')" class="hover:text-turquoise-400 transition">۱۹ دسته‌بندی تخصصی مشاوره</button></li>
+            <li><button type="button" onclick="navigateTo('categories')" class="hover:text-turquoise-400 transition">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی تخصصی مشاوره</button></li>
             <li><button type="button" onclick="navigateTo('explorer', {type: 'video'})" class="hover:text-turquoise-400 transition">ویدئوهای آموزشی و آپارات</button></li>
             <li><button type="button" onclick="navigateTo('explorer', {type: 'audio'})" class="hover:text-turquoise-400 transition">پادکست‌ها و فایل‌های صوتی</button></li>
             <li><button type="button" onclick="navigateTo('explorer', {type: 'download'})" class="hover:text-turquoise-400 transition">دانلود جزوه‌ها و فرم‌های مشاوره‌ای</button></li>
@@ -2402,26 +2398,27 @@
         const raw = localStorage.getItem(DB_STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.categories) && parsed.categories.length >= 19) {
+          if (parsed && typeof parsed === 'object' && Array.isArray(parsed.categories) && Array.isArray(parsed.quizzes)) {
             return parsed;
           }
         }
       } catch (e) {
         console.warn('Storage load fallback used:', e);
       }
-      const initial = getInitialSeedDatabase();
-      saveDatabase(initial);
-      return initial;
+      return getInitialSeedDatabase();
     }
 
-    function saveDatabase(dbObj) {
+    function saveDatabase(dbObj, isExplicitAdminEdit = false) {
       try {
-        if (!dbObj && typeof DB !== 'undefined' && DB) {
-          DB.lastLocalEdit = Date.now();
-        } else if (dbObj) {
-          dbObj.lastLocalEdit = Date.now();
+        const target = dbObj || (typeof DB !== 'undefined' ? DB : null);
+        if (!target) return;
+        if (isExplicitAdminEdit) {
+          target.lastLocalEdit = Date.now();
+          if (window.STATE) {
+            window.STATE.adminHasUnpublishedChanges = true;
+          }
         }
-        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(dbObj || DB));
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(target));
       } catch (e) {
         console.warn('Storage write notice:', e);
       }
@@ -2463,15 +2460,16 @@
           return;
         }
 
-        showToast('⏳ در حال اتصال به سرور ابری و انتشار آنلاین...', 'info');
+        showToast('⏳ در حال ارسال اطلاعات و انتشار آنلاین در سرور...', 'info');
 
         try {
-          const getUrl = `https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}?ref=${this.BRANCH}`;
+          const getUrl = `https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}?ref=${this.BRANCH}&_t=${Date.now()}`;
           const getRes = await fetch(getUrl, {
             headers: {
               'Accept': 'application/vnd.github.v3+json',
               'Authorization': `Bearer ${token}`
-            }
+            },
+            cache: 'no-store'
           });
 
           let sha = '';
@@ -2479,13 +2477,17 @@
             const data = await getRes.json();
             sha = data.sha;
           } else if (getRes.status === 401 || getRes.status === 403) {
-            showToast('❌ توکن دسترسی معتبر نیست یا دسترسی لازم ندارد.', 'error');
+            showToast('❌ توکن دسترسی معتبر نیست یا منقضی شده است.', 'error');
             this.openConfigModal(true);
             return;
           }
 
           DB.lastPublished = Date.now();
           DB.lastPublishedDateFa = new Date().toLocaleDateString('fa-IR') + ' ' + new Date().toLocaleTimeString('fa-IR');
+          DB.lastLocalEdit = DB.lastPublished;
+          if (window.STATE) {
+            window.STATE.adminHasUnpublishedChanges = false;
+          }
           saveDatabase(DB);
 
           const payload = {
@@ -2508,7 +2510,11 @@
 
           if (putRes.ok) {
             localStorage.setItem(this.LAST_SYNC_KEY, new Date().toISOString());
-            showToast('🎉 تغییرات با موفقیت روی سرور آنلاین منتشر شد! اکنون تمام کاربران این نسخه را مشاهده می‌کنند.', 'success');
+            if (window.STATE) {
+              window.STATE.adminHasUnpublishedChanges = false;
+            }
+            saveDatabase(DB);
+            showToast('🎉 تغییرات با موفقیت روی سرور آنلاین منتشر شد! اکنون هر بار سایت را ببندید و باز کنید تغییرات پایدار هستند.', 'success');
             if (typeof logAdminAction === 'function') {
               logAdminAction('انتشار آنلاین تغییرات سایت در سرور');
             }
@@ -2525,28 +2531,57 @@
 
       async fetchFromCloud(forceToast = false) {
         try {
-          const hasLocalUnpublished = DB && DB.lastLocalEdit && DB.lastLocalEdit > (DB.lastPublished || 0);
-          if (hasLocalUnpublished && !forceToast) {
-            console.log('Admin has local unpublished edits; preserving local state.');
+          // If the admin is actively editing in this session and hasn't published yet, don't clobber
+          if (window.STATE && window.STATE.adminHasUnpublishedChanges && !forceToast) {
+            console.log('Admin has unpublished edits in progress; keeping local drafts.');
             return;
           }
 
-          const sources = [
-            `./db.json?v=${Date.now()}`,
-            `https://raw.githubusercontent.com/${this.REPO}/${this.BRANCH}/${this.FILE_PATH}?v=${Date.now()}`
-          ];
-
           let remoteDb = null;
-          for (const s of sources) {
+          const token = this.getToken();
+
+          // Try 1: GitHub API (instant zero-delay reflection)
+          if (token) {
             try {
-              const res = await fetch(s, { cache: 'no-store' });
-              if (res.ok) {
-                remoteDb = await res.json();
-                if (remoteDb && Array.isArray(remoteDb.categories) && remoteDb.categories.length >= 19) {
-                  break;
+              const apiRes = await fetch(`https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}?ref=${this.BRANCH}&_cb=${Date.now()}`, {
+                headers: {
+                  'Accept': 'application/vnd.github.v3+json',
+                  'Authorization': `Bearer ${token}`
+                },
+                cache: 'no-store'
+              });
+              if (apiRes.ok) {
+                const apiData = await apiRes.json();
+                if (apiData && apiData.content) {
+                  const decoded = decodeURIComponent(escape(atob(apiData.content.replace(/\n/g, ''))));
+                  const parsed = JSON.parse(decoded);
+                  if (parsed && typeof parsed === 'object' && Array.isArray(parsed.categories) && Array.isArray(parsed.quizzes)) {
+                    remoteDb = parsed;
+                  }
                 }
               }
             } catch (_) {}
+          }
+
+          // Try 2 & 3: GitHub Raw & relative ./db.json
+          if (!remoteDb) {
+            const sources = [
+              `https://raw.githubusercontent.com/${this.REPO}/${this.BRANCH}/${this.FILE_PATH}?_t=${Date.now()}`,
+              `./${this.FILE_PATH}?_t=${Date.now()}`
+            ];
+
+            for (const s of sources) {
+              try {
+                const res = await fetch(s, { cache: 'no-store' });
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data && typeof data === 'object' && Array.isArray(data.categories) && Array.isArray(data.quizzes)) {
+                    remoteDb = data;
+                    break;
+                  }
+                }
+              } catch (_) {}
+            }
           }
 
           if (remoteDb) {
@@ -2555,7 +2590,10 @@
             if (preservedStudentData) {
               DB.studentData = preservedStudentData;
             }
-            saveDatabase(DB);
+            if (window.STATE) {
+              window.STATE.adminHasUnpublishedChanges = false;
+            }
+            localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(DB));
             if (forceToast) {
               showToast('✅ آخرین داده‌های سامانه از سرور دریافت و به‌روزرسانی شد.', 'success');
             }
@@ -3129,7 +3167,7 @@
                     <span>📚 مشاهده مطالب مشاوره‌ای</span>
                   </button>
                   <button type="button" onclick="navigateTo('quizzes')" class="px-4 py-3.5 rounded-2xl bg-softyellow-400/20 hover:bg-softyellow-400/30 text-softyellow-200 border border-softyellow-400/40 font-bold text-xs sm:text-sm transition">
-                    🧭 آزمون‌های خودارزیابی (۹ آزمون)
+                    🧭 آزمون‌های خودارزیابی (${(DB.quizzes || []).length.toLocaleString('fa-IR')} آزمون)
                   </button>
                 </div>
 
@@ -3220,7 +3258,7 @@
           <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
               <span class="text-xs font-extrabold text-turquoise-600 bg-turquoise-50 px-3 py-1 rounded-full border border-turquoise-200">ساختار جامع محتوایی</span>
-              <h2 class="text-xl sm:text-3xl font-black text-navy-900 mt-2">۱۹ دسته‌بندی اصلی همراه باقرالعلوم</h2>
+              <h2 class="text-xl sm:text-3xl font-black text-navy-900 mt-2">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی اصلی همراه باقرالعلوم</h2>
               <p class="text-xs sm:text-sm text-slate-600 mt-1">تمامی محورهای علمی، مشاوره‌ای، تحصیلی، روان‌شناختی و مهارت‌های زندگی با زیرمجموعه‌های تخصصی</p>
             </div>
             <button type="button" onclick="navigateTo('categories')" class="px-4 py-2.5 rounded-xl bg-navy-900 text-white text-xs sm:text-sm font-bold hover:bg-navy-800 self-start sm:self-auto transition">
@@ -3726,13 +3764,13 @@
           <nav class="flex items-center gap-2 text-xs text-slate-500">
             <button type="button" onclick="navigateTo('home')" class="hover:text-navy-900 font-bold">صفحه اصلی</button>
             <span>/</span>
-            <span class="text-navy-900 font-extrabold">۱۹ دسته‌بندی اصلی و درخت زیرعنوان‌ها</span>
+            <span class="text-navy-900 font-extrabold">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی اصلی و درخت زیرعنوان‌ها</span>
           </nav>
 
           <div class="bg-gradient-to-r from-navy-950 via-navy-900 to-navy-800 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="space-y-2 max-w-2xl">
               <span class="px-3 py-1 rounded-full bg-turquoise-500/20 text-turquoise-300 border border-turquoise-400/30 text-xs font-bold">طبقه‌بندی استاندارد علمی و مشاوره‌ای</span>
-              <h1 class="text-2xl sm:text-3xl font-black">فهرست جامع ۱۹ دسته‌بندی و زیرمجموعه‌های چندسطحی</h1>
+              <h1 class="text-2xl sm:text-3xl font-black">فهرست جامع ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی و زیرمجموعه‌های چندسطحی</h1>
               <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 هر دسته‌بندی دارای زیرعنوان‌های تخصصی و درختواره موضوعی است. مشاور مدرسه می‌تواند از طریق پنل مدیریت، دسته‌ها و زیرعنوان‌های نامحدود جدیدی به این ساختار اضافه کند.
               </p>
@@ -3837,7 +3875,7 @@
           <nav class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
             <button type="button" onclick="navigateTo('home')" class="hover:text-navy-900 font-bold">صفحه اصلی</button>
             <span>/</span>
-            <button type="button" onclick="navigateTo('categories')" class="hover:text-navy-900 font-bold">۱۹ دسته‌بندی اصلی</button>
+            <button type="button" onclick="navigateTo('categories')" class="hover:text-navy-900 font-bold">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی اصلی</button>
             <span>/</span>
             <span class="text-navy-900 font-extrabold">${cat.title}</span>
           </nav>
@@ -4027,7 +4065,7 @@
               </div>
               <div class="md:col-span-3">
                 <select onchange="updateExplorerFilter({cat: this.value})" class="w-full px-3 py-3 rounded-2xl bg-navy-800 border border-navy-700 text-white text-xs sm:text-sm font-bold focus:outline-none">
-                  <option value="all">همه ۱۹ دسته‌بندی</option>
+                  <option value="all">همه ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی</option>
                   ${DB.categories.filter(c=>c.active!==false).map(c => `<option value="${c.id}" ${filterCat === c.id ? 'selected' : ''}>${c.title}</option>`).join('')}
                 </select>
               </div>
@@ -4334,6 +4372,15 @@
                   <button type="button" onclick="startQuiz('${qz.id}')" class="w-full py-3 rounded-2xl bg-navy-900 hover:bg-turquoise-600 text-white font-black text-xs sm:text-sm transition">
                     ${prevAttempt ? 'شرکت مجدد در آزمون ←' : 'شروع آزمون و دریافت تفسیر آنی ←'}
                   </button>
+                  ${AuthService.isAuthenticatedStaff() ? `
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                      <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">مدیریت مشاور</span>
+                      <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="LiveVisualCMS.openQuickQuizModal('${qz.id}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-navy-900 font-bold transition">✏️ ویرایش</button>
+                        <button type="button" onclick="adminDeleteQuiz('${qz.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold transition">🗑️ حذف</button>
+                      </div>
+                    </div>
+                  ` : ''}
                 </div>
               `;
             }).join('')}
@@ -5479,7 +5526,7 @@
             <h3 class="text-lg font-black text-navy-900">🌐 نقشه سایت خودکار (Sitemap.xml) و وضعیت سئو (SEO)</h3>
             <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-600 font-bold">✕</button>
           </div>
-          <p class="text-xs text-slate-600">نقشه سایت به صورت پویا بر اساس تمامی ۱۹ دسته‌بندی و ${DB.posts.length.toLocaleString('fa-IR')} مطلب پایگاه داده تولید شده است:</p>
+          <p class="text-xs text-slate-600">نقشه سایت به صورت پویا بر اساس تمامی ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی و ${(DB.posts || []).length.toLocaleString('fa-IR')} مطلب پایگاه داده تولید شده است:</p>
           <pre class="p-4 rounded-2xl bg-slate-900 text-emerald-400 text-[11px] font-mono overflow-x-auto max-h-64 text-left" dir="ltr">${sitemapXml.replace(/</g, '&lt;')}</pre>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
             <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 font-bold text-emerald-800">✓ تگ‌های متا و OpenGraph فعال</div>
@@ -5750,7 +5797,7 @@
               </div>
 
               <div class="md:col-span-4">
-                <label class="block font-bold text-slate-700 mb-1">دسته‌بندی اصلی (از ۱۹ دسته):</label>
+                <label class="block font-bold text-slate-700 mb-1">دسته‌بندی اصلی (از ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته):</label>
                 <select id="ed-category" onchange="updateEditorSubcategoryOptions(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-bold">
                   ${DB.categories.map(c => `<option value="${c.id}" ${c.id === p.categoryId ? 'selected' : ''}>${c.title}</option>`).join('')}
                 </select>
@@ -5939,7 +5986,7 @@
 
             <!-- Categories List Management Table -->
             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <h3 class="text-base font-black text-navy-900">📂 مدیریت، ویرایش، تغییر ترتیب و فعال‌سازی ۱۹ دسته‌بندی</h3>
+              <h3 class="text-base font-black text-navy-900">📂 مدیریت، ویرایش، تغییر ترتیب و فعال‌سازی ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی</h3>
               <div class="space-y-3">
                 ${sortedCats.map((cat, idx) => {
                   const postCount = DB.posts.filter(p => p.categoryId === cat.id).length;
@@ -6056,14 +6103,21 @@
             </div>
 
             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3 text-xs">
-              <h3 class="text-base font-black text-navy-900">فهرست آزمون‌های فعال سامانه (${DB.quizzes.length.toLocaleString('fa-IR')})</h3>
-              ${DB.quizzes.map(qz => `
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                  <div>
-                    <p class="font-extrabold text-navy-900">${qz.icon || '🧭'} ${qz.title}</p>
-                    <p class="text-slate-500 mt-0.5">${qz.category} • ${(qz.questions || []).length} سؤال</p>
+              <div class="flex items-center justify-between">
+                <h3 class="text-base font-black text-navy-900">فهرست آزمون‌های فعال سامانه (${(DB.quizzes || []).length.toLocaleString('fa-IR')})</h3>
+                <span class="text-[11px] text-slate-500 font-bold">کاملاً یکپارچه و واکنش‌گرا با کل سایت</span>
+              </div>
+              ${(DB.quizzes || []).map(qz => `
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <p class="font-extrabold text-navy-900 text-sm">${qz.icon || '🧭'} ${qz.title}</p>
+                    <p class="text-slate-500 mt-0.5">${qz.category || 'خودارزیابی'} • ${(qz.questions || []).length} سؤال • ${qz.duration || '۳ دقیقه'}</p>
                   </div>
-                  <button type="button" onclick="startQuiz('${qz.id}')" class="px-3 py-1.5 rounded-xl bg-turquoise-600 text-white font-bold">مشاهده و تست آزمون</button>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="LiveVisualCMS.openQuickQuizModal('${qz.id}')" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-navy-900 font-bold border border-slate-200 shadow-sm transition">✏️ ویرایش</button>
+                    <button type="button" onclick="adminDeleteQuiz('${qz.id}')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 transition">🗑️ حذف</button>
+                    <button type="button" onclick="startQuiz('${qz.id}')" class="px-3 py-1.5 rounded-xl bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold transition shadow-sm">تست آزمون</button>
+                  </div>
                 </div>
               `).join('')}
             </div>
@@ -6163,7 +6217,7 @@
                 </span>
               </div>
               <p class="text-xs text-slate-300 leading-relaxed">
-                با کلیک بر روی «انتشار آنلاین»، تمامی ۱۹ دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و اخبار مستقیماً روی سرور آنلاین آپدیت شده و بلافاصله برای تمامی دانش‌آموزان و بازدیدکنندگان در تمام دنیا اعمال می‌گردد.
+                با کلیک بر روی «انتشار آنلاین»، تمامی ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و اخبار مستقیماً روی سرور آنلاین آپدیت شده و بلافاصله برای تمامی دانش‌آموزان و بازدیدکنندگان در تمام دنیا اعمال می‌گردد.
               </p>
               <div class="flex flex-wrap items-center gap-2 pt-1">
                 <button type="button" onclick="CloudSync.publishToCloud()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs transition shadow-md flex items-center gap-2">
@@ -6184,7 +6238,7 @@
 
             <h2 class="text-lg sm:text-xl font-black text-navy-900 pt-2">🛡️ امنیت، حفاظت از اطلاعات و نسخه‌های پشتیبان دستی</h2>
             <p class="text-slate-600 leading-relaxed">
-              تمامی داده‌های سامانه «همراه باقرالعلوم» در پایگاه داده پایدار مرورگر ذخیره می‌شوند. شما می‌توانید در هر لحظه از کل پایگاه داده (شامل ۱۹ دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و کاربران) خروجی JSON تهیه کرده یا فایل پشتیبان قبلی را بازیابی نمایید.
+              تمامی داده‌های سامانه «همراه باقرالعلوم» در پایگاه داده پایدار مرورگر ذخیره می‌شوند. شما می‌توانید در هر لحظه از کل پایگاه داده (شامل ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و کاربران) خروجی JSON تهیه کرده یا فایل پشتیبان قبلی را بازیابی نمایید.
             </p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
@@ -6204,7 +6258,7 @@
               <div class="p-5 rounded-2xl bg-rose-50/50 border border-rose-200 space-y-3">
                 <p class="text-2xl">🔄</p>
                 <h3 class="font-extrabold text-rose-900">بازنشانی به داده‌های نمونه اولیه</h3>
-                <p class="text-xs text-slate-600">بازگرداندن ۱۹ دسته‌بندی و ۱۹ مطلب نمونه استاندارد اولیه سامانه.</p>
+                <p class="text-xs text-slate-600">بازگرداندن دسته‌بندی‌ها و مطالب نمونه استاندارد اولیه سامانه.</p>
                 <button type="button" onclick="resetFactoryDatabase()" class="w-full py-2.5 rounded-xl bg-rose-600 text-white font-bold text-xs">بازنشانی پایگاه داده</button>
               </div>
             </div>
@@ -6717,8 +6771,29 @@
         ]
       });
       logAdminAction(`ایجاد آزمون جدید «${title}»`);
-      saveDatabase();
-      showToast(`آزمون «${title}» ساخته شد و در بخش آزمون‌ها فعال گردید.`, 'success');
+      if (window.STATE) window.STATE.adminHasUnpublishedChanges = true;
+      saveDatabase(DB, true);
+      showToast(`آزمون «${title}» با موفقیت اضافه شد. جهت انتشار روی سرور برای همه، دکمه «انتشار آنلاین در سایت» در پنل مدیریت را بزنید.`, 'success');
+      renderApp();
+    }
+
+    function adminDeleteQuiz(qzId) {
+      if (!AuthService.isAuthenticatedStaff()) {
+        showToast('⚠️ دسترسی غیرمجاز: لطفاً ابتدا با حساب مدیر وارد شوید.', 'error');
+        return;
+      }
+      const qz = (DB.quizzes || []).find(q => q.id === qzId);
+      if (!qz) return;
+      if (!confirm(`آیا از حذف آزمون «${qz.title}» اطمینان دارید؟\n\nبا تأیید شما، تعداد آزمون‌ها در صفحه اصلی، منوها، کارت‌ها و پنل‌ها به‌صورت کاملاً خودکار و یکپارچه به‌روزرسانی می‌شود.`)) {
+        return;
+      }
+      DB.quizzes = (DB.quizzes || []).filter(q => q.id !== qzId);
+      if (window.STATE) window.STATE.adminHasUnpublishedChanges = true;
+      saveDatabase(DB, true);
+      if (typeof logAdminAction === 'function') {
+        logAdminAction(`حذف آزمون خودارزیابی: ${qz.title}`);
+      }
+      showToast(`آزمون «${qz.title}» حذف شد. جهت ثبت در سرور، دکمه «انتشار آنلاین در سایت» در بالای پنل را بزنید.`, 'success');
       renderApp();
     }
 
@@ -8490,7 +8565,7 @@ function renderNotFoundView(reasonText) {
         <div class="flex flex-wrap justify-center gap-3 pt-2">
           <button type="button" onclick="navigateTo('home')" class="px-6 py-3 rounded-2xl bg-navy-900 hover:bg-turquoise-600 text-white font-black text-xs sm:text-sm transition">🏠 بازگشت به صفحه اصلی</button>
           <button type="button" onclick="navigateTo('explorer')" class="px-6 py-3 rounded-2xl bg-turquoise-50 hover:bg-turquoise-100 text-turquoise-800 border border-turquoise-200 font-bold text-xs sm:text-sm transition">📚 جستجو در کتابخانه محتوا</button>
-          <button type="button" onclick="navigateTo('categories')" class="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition">📂 مشاهده ۱۹ دسته‌بندی</button>
+          <button type="button" onclick="navigateTo('categories')" class="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition">📂 مشاهده ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی</button>
         </div>
       </div>
     </div>
@@ -8722,7 +8797,7 @@ renderExplorerView = function() {
           </div>
           <div class="lg:col-span-3">
             <select onchange="updateExplorerFilter({cat: this.value, sub: 'all', page: 1})" aria-label="فیلتر دسته‌بندی" class="w-full px-3 py-3 rounded-2xl bg-navy-800 border border-navy-700 text-white text-xs font-bold">
-              <option value="all">همه ۱۹ دسته‌بندی</option>
+              <option value="all">همه ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی</option>
               ${(DB.categories || []).filter(c => WorkflowEngine.isEntityPublic(c)).map(c => `<option value="${c.id}" ${filterCat === c.id ? 'selected' : ''}>${SecurityEngine.escapeHtml(c.title)}</option>`).join('')}
             </select>
           </div>
@@ -9350,7 +9425,7 @@ function renderQuizResultsPageView() {
         <div class="bg-white rounded-3xl p-10 text-center border border-slate-200 space-y-3">
           <p class="text-3xl">🧭</p>
           <p class="text-sm font-bold text-navy-900">هنوز هیچ آزمونی در کارنامه شما ثبت نشده است.</p>
-          <button type="button" onclick="navigateTo('quizzes')" class="px-5 py-2.5 rounded-xl bg-turquoise-600 text-white text-xs font-bold">مشاهده ۹ آزمون خودارزیابی</button>
+          <button type="button" onclick="navigateTo('quizzes')" class="px-5 py-2.5 rounded-xl bg-turquoise-600 text-white text-xs font-bold">مشاهده ${(DB.quizzes || []).length.toLocaleString('fa-IR')} آزمون خودارزیابی</button>
         </div>
       `}
     </div>
@@ -12550,10 +12625,15 @@ const LiveVisualCMS = {
         ]
       });
     }
-    saveDatabase();
+    if (window.STATE) window.STATE.adminHasUnpublishedChanges = true;
+    saveDatabase(DB, true);
     closeModal();
-    showToast('آزمون در نمای زنده ذخیره شد.', 'success');
+    showToast('آزمون ذخیره شد. جهت انتشار در سرور آنلاین، در بالای پنل دکمه «انتشار آنلاین در سایت» را بزنید.', 'success');
     renderApp();
+  },
+
+  deleteQuiz(qzId) {
+    adminDeleteQuiz(qzId);
   }
 };
 
@@ -13246,7 +13326,7 @@ function syncStaticShellWithSiteSettings() {
           <div>
             <h5 class="text-white font-bold text-sm mb-4 border-r-4 border-turquoise-500 pr-2.5">دسترسی سریع</h5>
             <ul class="space-y-2.5 text-xs sm:text-sm">
-              <li><button type="button" onclick="navigateTo('categories')" class="hover:text-turquoise-400 transition">۱۹ دسته‌بندی تخصصی مشاوره</button></li>
+              <li><button type="button" onclick="navigateTo('categories')" class="hover:text-turquoise-400 transition">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی تخصصی مشاوره</button></li>
               <li><button type="button" onclick="navigateTo('explorer', {type: 'video'})" class="hover:text-turquoise-400 transition">ویدئوهای آموزشی و آپارات</button></li>
               <li><button type="button" onclick="navigateTo('explorer', {type: 'audio'})" class="hover:text-turquoise-400 transition">پادکست‌ها و فایل‌های صوتی</button></li>
               <li><button type="button" onclick="navigateTo('explorer', {type: 'download'})" class="hover:text-turquoise-400 transition">دانلود جزوه‌ها و فرم‌های مشاوره‌ای</button></li>
@@ -14654,7 +14734,7 @@ renderSingleCategoryView = function() {
       <nav class="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold text-navy-800 bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
         <button type="button" onclick="navigateTo('home')" class="text-turquoise-700 hover:underline font-extrabold">🏠 صفحه اصلی</button>
         <span class="text-slate-400">←</span>
-        <button type="button" onclick="navigateTo('categories')" class="text-turquoise-700 hover:underline font-extrabold">📂 ۱۹ دسته‌بندی اصلی</button>
+        <button type="button" onclick="navigateTo('categories')" class="text-turquoise-700 hover:underline font-extrabold">📂 ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی اصلی</button>
         <span class="text-slate-400">←</span>
         <span class="text-navy-950 font-black">${SecurityEngine.escapeHtml(cat.title)}</span>
         ${selectedSubObj ? `<span class="text-slate-400">←</span><span class="px-2.5 py-0.5 rounded-lg bg-turquoise-100 text-turquoise-900 font-black">${SecurityEngine.escapeHtml(selectedSubObj.title)}</span>` : ''}
@@ -14682,7 +14762,7 @@ renderSingleCategoryView = function() {
               <button type="button" onclick="LiveVisualCMS.openQuickPostModal(null, '${safeCatId}')" class="live-cms-control px-4 py-2.5 rounded-xl bg-turquoise-400 hover:bg-turquoise-300 text-navy-950 text-xs font-black shadow-lg" style="background:#22d3ee !important;color:#09162a !important;">+ افزودن مطلب در این دسته</button>
               <button type="button" onclick="LiveVisualCMS.openQuickCategoryModal('${safeCatId}')" class="live-cms-control px-3.5 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30">✏️ ویرایش دسته</button>
             ` : `
-              <button type="button" onclick="navigateTo('categories')" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 text-white text-xs font-bold">📂 مشاهده همه ۱۹ دسته ←</button>
+              <button type="button" onclick="navigateTo('categories')" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 text-white text-xs font-bold">📂 مشاهده همه ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته ←</button>
             `}
           </div>
         </div>
@@ -14806,7 +14886,7 @@ renderSingleCategoryView = function() {
         <!-- Quick Switch Sidebar to Other 19 Categories (Col 3) -->
         <aside class="lg:col-span-3 space-y-4">
           <div class="bg-white rounded-3xl p-5 border border-slate-300 shadow-sm space-y-3">
-            <h3 class="text-sm font-black text-navy-950 border-r-4 border-turquoise-500 pr-2.5">دسترسی سریع به ۱۹ دسته اصلی</h3>
+            <h3 class="text-sm font-black text-navy-950 border-r-4 border-turquoise-500 pr-2.5">دسترسی سریع به ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته اصلی</h3>
             <div class="max-h-96 overflow-y-auto space-y-1.5 pr-1">
               ${(DB.categories || []).filter(c => WorkflowEngine.isEntityPublic(c)).sort((a,b)=>a.order-b.order).map(c => `
                 <button type="button" onclick="navigateTo('category', {id: '${SecurityEngine.escapeHtml(c.id)}'})" class="w-full text-right px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition ${c.id === cat.id ? 'bg-navy-900 text-white shadow' : 'bg-slate-50 text-navy-900 hover:bg-turquoise-50 border border-slate-200'}">
@@ -14833,13 +14913,13 @@ renderCategoriesListView = function() {
       <nav class="flex items-center gap-2 text-xs sm:text-sm font-bold text-navy-900 bg-white px-4 py-3 rounded-2xl border border-slate-300 shadow-sm">
         <button type="button" onclick="navigateTo('home')" class="text-turquoise-700 hover:underline font-extrabold">🏠 صفحه اصلی</button>
         <span>←</span>
-        <span class="text-navy-950 font-black">۱۹ دسته‌بندی اصلی و کارت‌های زیرعنوان تخصصی</span>
+        <span class="text-navy-950 font-black">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی اصلی و کارت‌های زیرعنوان تخصصی</span>
       </nav>
 
       <div class="bg-gradient-to-r from-navy-950 via-navy-900 to-navy-800 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-2xl" style="background: linear-gradient(135deg, #09162a 0%, #0f2442 60%, #0e7490 100%) !important; color: #ffffff !important;">
         <div class="space-y-2 max-w-2xl">
           <span class="px-3 py-1 rounded-full bg-turquoise-400 text-navy-950 text-xs font-black">طبقه‌بندی جامع علمی و مشاوره‌ای</span>
-          <h1 class="text-2xl sm:text-3xl font-black text-white">فهرست جامع ۱۹ دسته‌بندی و زیرعنوان‌های تخصصی</h1>
+          <h1 class="text-2xl sm:text-3xl font-black text-white">فهرست جامع ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی و زیرعنوان‌های تخصصی</h1>
           <p class="text-xs sm:text-sm text-slate-100 leading-relaxed">
             تمامی ۱۹ محور اصلی و زیرعنوان‌های هر دسته به همراه آیکون و توضیحات تخصصی در ادامه قابل مشاهده و انتخاب هستند.
           </p>
@@ -15105,12 +15185,6 @@ if (typeof CloudSync !== 'undefined' && CloudSync.fetchFromCloud) {
     }
   </style>
 
-  <!-- Floating Cloud Publish Quick Button -->
-  <div id="floating-quick-publish" class="fixed bottom-6 right-6 z-40">
-    <button type="button" onclick="CloudSync.publishToCloud()" class="px-4 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-2xl transition flex items-center gap-2 border-2 border-white/50 hover:scale-105 active:scale-95" title="انتشار آنلاین تغییرات">
-      <span class="text-base">🚀</span>
-      <span>انتشار آنلاین تغییرات در سایت</span>
-    </button>
-  </div>
+  
 </body>
 </html>
