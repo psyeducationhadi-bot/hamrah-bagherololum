@@ -6262,71 +6262,6 @@
             </div>
           </div>
         `;
-      } else {
-        mainPanelHtml = `
-          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 text-xs sm:text-sm">
-            <!-- Cloud Database Live Sync Section -->
-            <div class="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 text-white border border-navy-800 shadow-md space-y-4">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-navy-800/80 pb-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xl">🌐</div>
-                  <div>
-                    <h3 class="font-black text-base text-white">پایگاه داده ابری آنلاین (GitHub Cloud Sync Engine)</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">مخزن متصل: <code class="text-turquoise-300 font-mono">psyeducationhadi-bot/hamrah-bagherololum</code> (شاخه main)</p>
-                  </div>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold self-start sm:self-auto">
-                  🟢 آماده انتشار آنلاین
-                </span>
-              </div>
-              <p class="text-xs text-slate-300 leading-relaxed">
-                با کلیک بر روی «انتشار آنلاین»، تمامی ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و اخبار مستقیماً روی سرور آنلاین آپدیت شده و بلافاصله برای تمامی دانش‌آموزان و بازدیدکنندگان در تمام دنیا اعمال می‌گردد.
-              </p>
-              <div class="flex flex-wrap items-center gap-2 pt-1">
-                <button type="button" onclick="CloudSync.publishToCloud()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs transition shadow-md flex items-center gap-2">
-                  <span>🚀</span>
-                  <span>انتشار آنلاین تغییرات فعلی در سایت</span>
-                </button>
-                <button type="button" onclick="CloudSync.fetchFromCloud(true)" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-2">
-                  <span>📥</span>
-                  <span>دریافت آخرین نسخه از سرور آنلاین</span>
-                </button>
-                <button type="button" onclick="CloudSync.openConfigModal()" class="px-4 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white font-bold text-xs transition flex items-center gap-1.5 border border-navy-700">
-                  <span>⚙️</span>
-                  <span>تنظیم توکن مدیر</span>
-                </button>
-              </div>
-              ${DB.lastPublishedDateFa ? `<p class="text-[11px] text-slate-400 pt-1">آخرین انتشار موفق در سرور: <span class="text-turquoise-300 font-bold">${DB.lastPublishedDateFa}</span></p>` : ''}
-            </div>
-
-            <h2 class="text-lg sm:text-xl font-black text-navy-900 pt-2">🛡️ امنیت، حفاظت از اطلاعات و نسخه‌های پشتیبان دستی</h2>
-            <p class="text-slate-600 leading-relaxed">
-              تمامی داده‌های سامانه «همراه باقرالعلوم» در پایگاه داده پایدار مرورگر ذخیره می‌شوند. شما می‌توانید در هر لحظه از کل پایگاه داده (شامل ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و کاربران) خروجی JSON تهیه کرده یا فایل پشتیبان قبلی را بازیابی نمایید.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <p class="text-2xl">💾</p>
-                <h3 class="font-extrabold text-navy-900">تهیه نسخه پشتیبان کامل (Export JSON)</h3>
-                <p class="text-xs text-slate-500">دانلود فایل JSON حاوی تمامی مطالب، دسته‌ها و تنظیمات فعلی سایت.</p>
-                <button type="button" onclick="exportDatabaseBackup()" class="w-full py-2.5 rounded-xl bg-navy-900 text-white font-bold text-xs">دانلود نسخه پشتیبان پایگاه داده</button>
-              </div>
-
-              <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <p class="text-2xl">📂</p>
-                <h3 class="font-extrabold text-navy-900">بازیابی اطلاعات از فایل پشتیبان (Restore)</h3>
-                <p class="text-xs text-slate-500">انتخاب فایل پشتیبان JSON جهت بازگردانی فوری اطلاعات سایت.</p>
-                <input type="file" accept=".json" onchange="restoreDatabaseBackup(event)" class="w-full text-xs" />
-              </div>
-
-              <div class="p-5 rounded-2xl bg-rose-50/50 border border-rose-200 space-y-3">
-                <p class="text-2xl">🔄</p>
-                <h3 class="font-extrabold text-rose-900">بازنشانی به داده‌های نمونه اولیه</h3>
-                <p class="text-xs text-slate-600">بازگرداندن دسته‌بندی‌ها و مطالب نمونه استاندارد اولیه سامانه.</p>
-                <button type="button" onclick="resetFactoryDatabase()" class="w-full py-2.5 rounded-xl bg-rose-600 text-white font-bold text-xs">بازنشانی پایگاه داده</button>
-              </div>
-            </div>
-          </div>
-        `;
       } else if (tab === 'backup') {
         mainPanelHtml = `
           <div class="space-y-6">
@@ -6420,6 +6355,71 @@
                 <div class="p-3 rounded-2xl border-2 border-dashed border-slate-300 hover:border-turquoise-500 bg-slate-50 text-center transition">
                   <input type="file" id="adm-restore-file-inp" accept=".json" onchange="restoreDatabaseBackup(event)" class="w-full text-xs text-slate-600 cursor-pointer file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-turquoise-600 file:text-white hover:file:bg-turquoise-500" />
                 </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        mainPanelHtml = `
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 text-xs sm:text-sm">
+            <!-- Cloud Database Live Sync Section -->
+            <div class="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 text-white border border-navy-800 shadow-md space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-navy-800/80 pb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xl">🌐</div>
+                  <div>
+                    <h3 class="font-black text-base text-white">پایگاه داده ابری آنلاین (GitHub Cloud Sync Engine)</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">مخزن متصل: <code class="text-turquoise-300 font-mono">psyeducationhadi-bot/hamrah-bagherololum</code> (شاخه main)</p>
+                  </div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold self-start sm:self-auto">
+                  🟢 آماده انتشار آنلاین
+                </span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                با کلیک بر روی «انتشار آنلاین»، تمامی ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و اخبار مستقیماً روی سرور آنلاین آپدیت شده و بلافاصله برای تمامی دانش‌آموزان و بازدیدکنندگان در تمام دنیا اعمال می‌گردد.
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button type="button" onclick="CloudSync.publishToCloud()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs transition shadow-md flex items-center gap-2">
+                  <span>🚀</span>
+                  <span>انتشار آنلاین تغییرات فعلی در سایت</span>
+                </button>
+                <button type="button" onclick="CloudSync.fetchFromCloud(true)" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-2">
+                  <span>📥</span>
+                  <span>دریافت آخرین نسخه از سرور آنلاین</span>
+                </button>
+                <button type="button" onclick="CloudSync.openConfigModal()" class="px-4 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white font-bold text-xs transition flex items-center gap-1.5 border border-navy-700">
+                  <span>⚙️</span>
+                  <span>تنظیم توکن مدیر</span>
+                </button>
+              </div>
+              ${DB.lastPublishedDateFa ? `<p class="text-[11px] text-slate-400 pt-1">آخرین انتشار موفق در سرور: <span class="text-turquoise-300 font-bold">${DB.lastPublishedDateFa}</span></p>` : ''}
+            </div>
+
+            <h2 class="text-lg sm:text-xl font-black text-navy-900 pt-2">🛡️ امنیت، حفاظت از اطلاعات و نسخه‌های پشتیبان دستی</h2>
+            <p class="text-slate-600 leading-relaxed">
+              تمامی داده‌های سامانه «همراه باقرالعلوم» در پایگاه داده پایدار مرورگر ذخیره می‌شوند. شما می‌توانید در هر لحظه از کل پایگاه داده (شامل ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و کاربران) خروجی JSON تهیه کرده یا فایل پشتیبان قبلی را بازیابی نمایید.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <p class="text-2xl">💾</p>
+                <h3 class="font-extrabold text-navy-900">تهیه نسخه پشتیبان کامل (Export JSON)</h3>
+                <p class="text-xs text-slate-500">دانلود فایل JSON حاوی تمامی مطالب، دسته‌ها و تنظیمات فعلی سایت.</p>
+                <button type="button" onclick="exportDatabaseBackup()" class="w-full py-2.5 rounded-xl bg-navy-900 text-white font-bold text-xs">دانلود نسخه پشتیبان پایگاه داده</button>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <p class="text-2xl">📂</p>
+                <h3 class="font-extrabold text-navy-900">بازیابی اطلاعات از فایل پشتیبان (Restore)</h3>
+                <p class="text-xs text-slate-500">انتخاب فایل پشتیبان JSON جهت بازگردانی فوری اطلاعات سایت.</p>
+                <input type="file" accept=".json" onchange="restoreDatabaseBackup(event)" class="w-full text-xs" />
+              </div>
+
+              <div class="p-5 rounded-2xl bg-rose-50/50 border border-rose-200 space-y-3">
+                <p class="text-2xl">🔄</p>
+                <h3 class="font-extrabold text-rose-900">بازنشانی به داده‌های نمونه اولیه</h3>
+                <p class="text-xs text-slate-600">بازگرداندن دسته‌بندی‌ها و مطالب نمونه استاندارد اولیه سامانه.</p>
+                <button type="button" onclick="resetFactoryDatabase()" class="w-full py-2.5 rounded-xl bg-rose-600 text-white font-bold text-xs">بازنشانی پایگاه داده</button>
               </div>
             </div>
           </div>
