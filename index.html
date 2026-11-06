@@ -638,7 +638,7 @@
         <nav class="hidden xl:flex items-center gap-1 text-sm font-semibold text-slate-700">
           <button type="button" onclick="navigateTo('home')" id="nav-home" class="px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-navy-900 transition">صفحه اصلی</button>
           <button type="button" onclick="toggleMegaCategories()" id="nav-categories-btn" class="px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-navy-900 transition flex items-center gap-1">
-            <span>دسته‌بندی‌ها (${(DB.categories || []).length.toLocaleString('fa-IR')})</span>
+            <span>دسته‌بندی‌ها (<span class="js-cat-count">۱۸</span>)</span>
             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           <button type="button" onclick="navigateTo('explorer')" id="nav-explorer" class="px-3 py-2 rounded-xl hover:bg-slate-100 hover:text-navy-900 transition">کتابخانه محتوا</button>
@@ -694,7 +694,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-base font-extrabold text-navy-900">دسترسی سریع به ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی تخصصی همراه باقرالعلوم</h3>
+            <h3 class="text-base font-extrabold text-navy-900">دسترسی سریع به <span class="js-cat-count">۱۸</span> دسته‌بندی تخصصی همراه باقرالعلوم</h3>
             <p class="text-xs text-slate-500">روی هر دسته‌بندی کلیک کنید تا زیرمجموعه‌ها، مقالات، ویدئوها و فایل‌های آن را مشاهده نمایید</p>
           </div>
           <button type="button" onclick="toggleMegaCategories(false)" class="text-xs font-bold text-slate-500 hover:text-rose-600 px-2.5 py-1 rounded-lg bg-slate-100">بستن ✕</button>
@@ -719,7 +719,7 @@
       </div>
       <div class="grid grid-cols-2 gap-2 text-sm font-bold">
         <button type="button" onclick="navigateTo('home');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">🏠 صفحه اصلی</button>
-        <button type="button" onclick="navigateTo('categories');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">📂 ${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی</button>
+        <button type="button" onclick="navigateTo('categories');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">📂 <span class="js-cat-count">۱۸</span> دسته‌بندی</button>
         <button type="button" onclick="navigateTo('explorer');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">📚 کتابخانه محتوا</button>
         <button type="button" onclick="navigateTo('quizzes');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">🧭 آزمون‌های خودارزیابی</button>
         <button type="button" onclick="navigateTo('faq');toggleMobileMenu(false);" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-right">❓ سؤالات پرتکرار</button>
@@ -760,7 +760,7 @@
         <div>
           <h5 class="text-white font-bold text-sm mb-4 border-r-4 border-turquoise-500 pr-2.5">دسترسی سریع</h5>
           <ul class="space-y-2.5 text-xs sm:text-sm">
-            <li><button type="button" onclick="navigateTo('categories')" class="hover:text-turquoise-400 transition">${(DB.categories || []).length.toLocaleString('fa-IR')} دسته‌بندی تخصصی مشاوره</button></li>
+            <li><button type="button" onclick="navigateTo('categories')" class="hover:text-turquoise-400 transition"><span class="js-cat-count">۱۸</span> دسته‌بندی تخصصی مشاوره</button></li>
             <li><button type="button" onclick="navigateTo('explorer', {type: 'video'})" class="hover:text-turquoise-400 transition">ویدئوهای آموزشی و آپارات</button></li>
             <li><button type="button" onclick="navigateTo('explorer', {type: 'audio'})" class="hover:text-turquoise-400 transition">پادکست‌ها و فایل‌های صوتی</button></li>
             <li><button type="button" onclick="navigateTo('explorer', {type: 'download'})" class="hover:text-turquoise-400 transition">دانلود جزوه‌ها و فرم‌های مشاوره‌ای</button></li>
@@ -912,20 +912,7 @@
     // Initial Seed Data covering all 19 Categories, Multi-level Subcategories, Rich Content, Quizzes, FAQs, Users, Majors
     function getInitialSeedDatabase() {
       const categories = [
-        {
-          id: 'cat-1', order: 1, active: true, icon: '🧭', color: 'from-turquoise-500 to-navy-800',
-          title: '۱. شناخت خود، نوجوانی و رشد فردی',
-          slug: 'self-knowledge-adolescence',
-          description: 'کشف استعدادها، تیپ‌های شخصیتی، هویت‌یابی در دوره نوجوانی، تقویت عزت‌نفس و خودآگاهی.',
-          subcategories: [
-            { id: 'sub-1-1', parentId: null, title: 'خودشناسی و کشف استعدادها' },
-            { id: 'sub-1-2', parentId: null, title: 'ویژگی‌های دوره نوجوانی و بلوغ' },
-            { id: 'sub-1-3', parentId: 'sub-1-1', title: 'تیپ‌های شخصیتی MBTI و هالند' },
-            { id: 'sub-1-4', parentId: null, title: 'عزت‌نفس و اعتمادبه‌نفس تحصیلی' }
-          ]
-        },
-        {
-          id: 'cat-2', order: 2, active: true, icon: '🎯', color: 'from-softblue-500 to-navy-900',
+        { id: 'cat-2', order: 2, active: true, icon: '🎯', color: 'from-softblue-500 to-navy-900',
           title: '۲. هدف‌گذاری، انگیزه و موفقیت',
           slug: 'goal-setting-motivation',
           description: 'اصول هدف‌گذاری کوتاه‌مدت و بلندمدت به روش SMART، حفظ انگیزه در روزهای سخت و ساخت ذهنیت برنده.',
@@ -941,7 +928,7 @@
           slug: 'study-skills-learning',
           description: 'روش مطالعه فعال PQ4R، خلاصه‌نویسی استاندارد، نقشه‌کشی ذهنی (Mind Map)، تندخوانی و مرور علمی.',
           subcategories: [
-            { id: 'sub-3-1', parentId: null, title: 'روش مطالعه шести‌مرحله‌ای PQ4R' },
+            { id: 'sub-3-1', parentId: null, title: 'روش مطالعه شش‌مرحله‌ای PQ4R' },
             { id: 'sub-3-2', parentId: null, title: 'خلاصه‌نویسی، حاشیه‌نویسی و نقشه ذهنی' },
             { id: 'sub-3-3', parentId: null, title: 'منحنی فراموشی ابینگهاوس و چرخه مرور' },
             { id: 'sub-3-4', parentId: 'sub-3-2', title: 'تکنیک یادداشت‌برداری کرنل (Cornell)' }
@@ -1526,7 +1513,7 @@
       const additionalSeedPosts = [
         {
           id: 'post-9', title: 'راهنمای خودشناسی نوجوان و کشف تیپ شخصیتی برای موفقیت تحصیلی', slug: 'adolescent-self-discovery-guide',
-          categoryId: 'cat-1', subcategoryId: 'sub-1-1', contentType: 'article', mediaFormat: 'text', grade: 'پایه دهم', importance: 'مهم', status: 'published', featured: false, views: 760, likes: 140, readingTime: '۷ دقیقه', author: 'محمد هادی برخوری مهنی', createdAt: '۱۴۰۵/۰۷/۱۸', updatedAt: '۱۴۰۵/۰۷/۱۸', tags: ['خودشناسی', 'نوجوانی', 'استعداد'],
+          categoryId: 'cat-2', subcategoryId: 'sub-1-1', contentType: 'article', mediaFormat: 'text', grade: 'پایه دهم', importance: 'مهم', status: 'published', featured: false, views: 760, likes: 140, readingTime: '۷ دقیقه', author: 'محمد هادی برخوری مهنی', createdAt: '۱۴۰۵/۰۷/۱۸', updatedAt: '۱۴۰۵/۰۷/۱۸', tags: ['خودشناسی', 'نوجوانی', 'استعداد'],
           summary: 'شناخت نقاط قوت، ارزش‌های فردی و تیپ شخصیتی چگونه مسیر درس خواندن و انتخاب هدف شما را متحول می‌کند؟', coverType: 'self', aparatHash: '', videoUrl: '', videoSubtitles: '', audioUrl: '', audioDuration: '', audioTranscript: '', attachments: [], gallery: [],
           content: '<p>اولین گام در مسیر موفقیت، شناخت دقیق خودتان است. هر دانش‌آموز سبک یادگیری، ریتم انرژی روزانه و نقاط قوت منحصربه‌فردی دارد که با مقایسه کردن خود با دیگران نادیده گرفته می‌شود.</p><h2>سه ستون خودآگاهی در دوره دبیرستان</h2><ul><li>شناخت استعدادهای ذاتی و هوش‌های چندگانه</li><li>شناخت عوامل انگیزاننده درونی در برابر فشارهای بیرونی</li><li>پذیرش نقاط ضعف قابل اصلاح و تبدیل آن‌ها به برنامه تمرینی</li></ul>'
         },
@@ -2408,13 +2395,41 @@
       return getInitialSeedDatabase();
     }
 
+    function syncCategoryCountBadges() {
+      try {
+        const activeCats = (typeof DB !== 'undefined' && DB && Array.isArray(DB.categories))
+          ? DB.categories.filter(c => c.active !== false)
+          : [];
+        const countStr = (activeCats.length || 18).toLocaleString('fa-IR');
+        document.querySelectorAll('.js-cat-count').forEach(el => {
+          el.textContent = countStr;
+        });
+      } catch (e) {
+        console.warn('syncCategoryCountBadges notice:', e);
+      }
+    }
+
+    function getCleanDatabaseForStorage(sourceDb) {
+      if (!sourceDb) return sourceDb;
+      const clone = JSON.parse(JSON.stringify(sourceDb));
+      if (Array.isArray(clone.posts)) {
+        clone.posts.forEach(p => {
+          if (typeof p.audioUrl === 'string' && p.audioUrl.startsWith('data:audio/wav;base64,')) {
+            p.audioUrl = '';
+          }
+        });
+      }
+      return clone;
+    }
+
     function saveDatabase(dbObj, isExplicitAdminEdit = false) {
       try {
         const target = dbObj || (typeof DB !== 'undefined' ? DB : null);
         if (!target) return;
-        if (isExplicitAdminEdit) {
+        const isStaff = (typeof AuthService !== 'undefined' && AuthService.isAuthenticatedStaff && AuthService.isAuthenticatedStaff());
+        if (isExplicitAdminEdit || isStaff) {
           target.lastLocalEdit = Date.now();
-          if (window.STATE) {
+          if (typeof window !== 'undefined' && window.STATE) {
             window.STATE.adminHasUnpublishedChanges = true;
           }
         }
@@ -2460,7 +2475,7 @@
           return;
         }
 
-        showToast('⏳ در حال ارسال اطلاعات و انتشار آنلاین در سرور...', 'info');
+        showToast('⏳ در حال اتصال به سرور و انتشار آنلاین تغییرات...', 'info');
 
         try {
           const getUrl = `https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}?ref=${this.BRANCH}&_t=${Date.now()}`;
@@ -2490,9 +2505,11 @@
           }
           saveDatabase(DB);
 
+          const cleanDb = typeof getCleanDatabaseForStorage === 'function' ? getCleanDatabaseForStorage(DB) : DB;
+
           const payload = {
             message: `Update site database from Admin CMS [${DB.lastPublishedDateFa}]`,
-            content: this.utf8ToBase64(JSON.stringify(DB, null, 2)),
+            content: this.utf8ToBase64(JSON.stringify(cleanDb, null, 2)),
             branch: this.BRANCH
           };
           if (sha) payload.sha = sha;
@@ -2540,7 +2557,7 @@
           let remoteDb = null;
           const token = this.getToken();
 
-          // Try 1: GitHub API (instant zero-delay reflection)
+          // Priority 1 (Admin with token): Direct GitHub API with cache: 'no-store' & cache-buster for 0-second real-time reflection
           if (token) {
             try {
               const apiRes = await fetch(`https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}?ref=${this.BRANCH}&_cb=${Date.now()}`, {
@@ -2563,11 +2580,13 @@
             } catch (_) {}
           }
 
-          // Try 2 & 3: GitHub Raw & relative ./db.json
+          // Priority 2 & 3 (Normal users & fallback):
+          // Priority 1: ./${this.FILE_PATH}?_t=${Date.now()}
+          // Priority 2: https://raw.githubusercontent.com/${this.REPO}/${this.BRANCH}/${this.FILE_PATH}?_t=${Date.now()}
           if (!remoteDb) {
             const sources = [
-              `https://raw.githubusercontent.com/${this.REPO}/${this.BRANCH}/${this.FILE_PATH}?_t=${Date.now()}`,
-              `./${this.FILE_PATH}?_t=${Date.now()}`
+              `./${this.FILE_PATH}?_t=${Date.now()}`,
+              `https://raw.githubusercontent.com/${this.REPO}/${this.BRANCH}/${this.FILE_PATH}?_t=${Date.now()}`
             ];
 
             for (const s of sources) {
@@ -2585,6 +2604,16 @@
           }
 
           if (remoteDb) {
+            // Timestamp Guard: Do not overwrite a newer local database with older CDN-cached remoteDb
+            const localPublished = (DB && DB.lastPublished) || 0;
+            const localEdit = (DB && DB.lastLocalEdit) || 0;
+            const remotePublished = (remoteDb && remoteDb.lastPublished) || 0;
+
+            if (!forceToast && (localEdit > remotePublished || localPublished > remotePublished)) {
+              console.log('Local database is newer than remote; preserving local state.');
+              return;
+            }
+
             const preservedStudentData = (DB && DB.studentData) ? DB.studentData : null;
             DB = remoteDb;
             if (preservedStudentData) {
@@ -6547,7 +6576,7 @@
       if (!p) return;
       p.status = nextStatus;
       logAdminAction(`تغییر وضعیت مطلب «${p.title}» به ${nextStatus}`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('وضعیت مطلب به‌روزرسانی شد.', 'success');
       renderApp();
     }
@@ -6556,7 +6585,7 @@
       const p = DB.posts.find(x => x.id === postId);
       DB.posts = DB.posts.filter(x => x.id !== postId);
       if (p) logAdminAction(`حذف دائمی مطلب «${p.title}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('مطلب به صورت دائمی حذف شد.', 'info');
       renderApp();
     }
@@ -6568,7 +6597,7 @@
       p.categoryId = newCatId;
       p.subcategoryId = (cat.subcategories && cat.subcategories[0]) ? cat.subcategories[0].id : '';
       logAdminAction(`انتقال مطلب «${p.title}» به دسته «${cat.title}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`مطلب به دسته‌بندی «${cat.title}» منتقل شد.`, 'success');
       renderApp();
     }
@@ -6603,7 +6632,7 @@
         subcategories: [{ id: 'sub-' + Date.now(), parentId: null, title: 'مباحث عمومی ' + title }]
       });
       logAdminAction(`افزودن دسته‌بندی جدید «${title}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`دسته‌بندی «${title}» بدون نیاز به تغییر کد به سایت اضافه شد!`, 'success');
       renderApp();
     }
@@ -6624,7 +6653,7 @@
         title
       });
       logAdminAction(`افزودن زیرعنوان «${title}» به دسته «${cat.title}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`زیرعنوان «${title}» به «${cat.title}» اضافه شد.`, 'success');
       renderApp();
     }
@@ -6635,7 +6664,7 @@
       if (!cat || !inp || !inp.value.trim()) return;
       cat.title = inp.value.trim();
       logAdminAction(`ویرایش عنوان دسته‌بندی به «${cat.title}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('عنوان دسته‌بندی به‌روزرسانی شد.', 'success');
       renderApp();
     }
@@ -6648,7 +6677,7 @@
       const temp = sorted[idx].order;
       sorted[idx].order = sorted[swapIdx].order;
       sorted[swapIdx].order = temp;
-      saveDatabase();
+      saveDatabase(DB, true);
       renderApp();
     }
 
@@ -6656,7 +6685,7 @@
       const cat = DB.categories.find(c => c.id === catId);
       if (!cat) return;
       cat.active = cat.active === false ? true : false;
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`وضعیت نمایش دسته‌بندی تغییر کرد.`, 'info');
       renderApp();
     }
@@ -6669,7 +6698,7 @@
       const cat = DB.categories.find(c => c.id === catId);
       DB.categories = DB.categories.filter(c => c.id !== catId);
       if (cat) logAdminAction(`حذف دسته‌بندی «${cat.title}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('دسته‌بندی حذف شد.', 'info');
       renderApp();
     }
@@ -6678,7 +6707,7 @@
       const cat = DB.categories.find(c => c.id === catId);
       if (!cat) return;
       cat.subcategories = (cat.subcategories || []).filter(s => s.id !== subId && s.parentId !== subId);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('زیرعنوان حذف شد.', 'info');
       renderApp();
     }
@@ -6701,7 +6730,7 @@
         createdAt: '۱۴۰۵/۰۸/۱۴'
       });
       logAdminAction(`ثبت سؤال پرتکرار جدید: ${question}`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('سؤال پرتکرار جدید منتشر شد.', 'success');
       renderApp();
     }
@@ -6713,7 +6742,7 @@
       msg.reply = inp.value.trim();
       msg.status = 'answered';
       logAdminAction(`پاسخ به پرسش دانش‌آموز ${msg.studentName}`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast('پاسخ مشاور ثبت و برای دانش‌آموز ارسال شد.', 'success');
       renderApp();
     }
@@ -6722,13 +6751,13 @@
       const f = DB.faqs.find(x => x.id === faqId);
       if (!f) return;
       f.approved = !f.approved;
-      saveDatabase();
+      saveDatabase(DB, true);
       renderApp();
     }
 
     function deleteFaqById(faqId) {
       DB.faqs = DB.faqs.filter(x => x.id !== faqId);
-      saveDatabase();
+      saveDatabase(DB, true);
       renderApp();
     }
 
@@ -6817,7 +6846,7 @@
         lastActivity: 'ثبت‌شده توسط مدیر'
       });
       logAdminAction(`ایجاد حساب کاربری برای «${name}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`حساب کاربری «${name}» ایجاد شد.`, 'success');
       renderApp();
     }
@@ -6834,7 +6863,7 @@
         permissions: ['manage_content', 'manage_faqs']
       });
       logAdminAction(`تعریف نقش کاربری جدید «${name}»`);
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`نقش کاربری «${name}» به سامانه اضافه شد.`, 'success');
       renderApp();
     }
@@ -6845,7 +6874,7 @@
       if (!u || !r) return;
       u.roleId = r.id;
       u.roleLabel = r.name;
-      saveDatabase();
+      saveDatabase(DB, true);
       showToast(`سطح دسترسی ${u.name} به «${r.name}» تغییر یافت.`, 'success');
       renderApp();
     }
@@ -6854,14 +6883,14 @@
       const u = DB.users.find(x => x.id === userId);
       if (!u) return;
       u.active = u.active === false ? true : false;
-      saveDatabase();
+      saveDatabase(DB, true);
       renderApp();
     }
 
     function adminDeleteUser(userId) {
       if (DB.users.length <= 1) return;
       DB.users = DB.users.filter(x => x.id !== userId);
-      saveDatabase();
+      saveDatabase(DB, true);
       renderApp();
     }
 
@@ -6969,6 +6998,7 @@
         default:
           viewport.innerHTML = renderHomeView();
       }
+      syncCategoryCountBadges();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -12214,7 +12244,7 @@ const LiveVisualCMS = {
     p.status = 'trash';
     p.workflowState = 'Archived';
     logAdminAction(`حذف زنده مطلب «${p.title}» (انتقال به زباله‌دان)`);
-    saveDatabase();
+    saveDatabase(DB, true);
     showToast(`مطلب «${p.title}» حذف شد (قابل بازیابی در زباله‌دان پنل مدیریت).`, 'info');
     if (STATE.currentView === 'post' && STATE.viewParams.id === postId) {
       navigateTo('home');
@@ -12277,7 +12307,7 @@ const LiveVisualCMS = {
         cat.title = title;
         cat.icon = icon;
         cat.description = description;
-        saveDatabase();
+        saveDatabase(DB, true);
         closeModal();
         showToast('دسته‌بندی در نمای زنده ویرایش شد.', 'success');
         renderApp();
@@ -12348,7 +12378,7 @@ const LiveVisualCMS = {
     } else {
       DB.shortTips.unshift({ id: 'tip-' + Date.now(), title, category, text });
     }
-    saveDatabase();
+    saveDatabase(DB, true);
     closeModal();
     showToast('نکته کوتاه در نمای زنده ذخیره شد.', 'success');
     renderApp();
@@ -12395,7 +12425,7 @@ const LiveVisualCMS = {
         approvalStatus: isSuper ? 'Approved' : 'Pending'
       });
     }
-    saveDatabase();
+    saveDatabase(DB, true);
     closeModal();
     showToast('اطلاعیه در نمای زنده ذخیره شد.', 'success');
     renderApp();
@@ -12444,7 +12474,7 @@ const LiveVisualCMS = {
         createdAt: JalaliDateEngine.nowDate()
       });
     }
-    saveDatabase();
+    saveDatabase(DB, true);
     closeModal();
     showToast('سؤال پرتکرار در نمای زنده ذخیره شد.', 'success');
     renderApp();
@@ -12499,7 +12529,7 @@ const LiveVisualCMS = {
       DB.majors.unshift(newMaj);
       DB.majorsDirectory = DB.majors;
     }
-    saveDatabase();
+    saveDatabase(DB, true);
     closeModal();
     showToast('اطلاعات رشته دانشگاهی در نمای زنده ذخیره شد.', 'success');
     renderApp();
@@ -12546,7 +12576,7 @@ const LiveVisualCMS = {
         approvalStatus: AuthService.isSuperAdmin() ? 'Approved' : 'Pending'
       });
     }
-    saveDatabase();
+    saveDatabase(DB, true);
     closeModal();
     showToast(`رویداد تقویم (${day} ${date}) در نمای زنده ذخیره شد.`, 'success');
     renderApp();
@@ -13774,6 +13804,7 @@ renderApp = function() {
   syncStaticShellWithSiteSettings();
   _origRenderAppV4();
   syncStaticShellWithSiteSettings();
+  syncCategoryCountBadges();
   LiveVisualCMS.reapplySavedCustomPageTexts();
   if (STATE.inlineTextEditActive && LiveVisualCMS.isActive()) {
     LiveVisualCMS.applyInlineEditableAttributes();
