@@ -2452,6 +2452,11 @@
       },
 
       async publishToCloud() {
+        if (!AuthService.isAuthenticatedStaff()) {
+          showToast('⚠️ دسترسی غیرمجاز: لطفاً ابتدا با حساب کاربری مدیر وارد شوید.', 'warning');
+          openStaffLoginModal();
+          return;
+        }
         const token = this.getToken();
         if (!token) {
           this.openConfigModal(true);
@@ -7267,69 +7272,22 @@ function upgradeAndMigrateDatabaseV3(rawDb) {
   const defaultStaffUsers = [
     {
       id: 'user-admin-1',
-      name: 'محمد هادی برخوری مهنی',
-      username: 'admin',
+      name: 'استاد محمد هادی برخوری مهنی',
+      username: 'hadi_admin',
       roleId: 'role-superadmin',
-      roleLabel: 'مدیر کل',
-      grade: 'مدیریت ارشد سامانه',
+      roleLabel: 'مشاور مدرسه و مدیر کل سامانه',
+      grade: 'تنها مشاور و مدیر مجاز سامانه',
       active: true,
-      salt: 'salt_admin_v3',
-      passwordHash: SecurityEngine.hashPassword('Bagher@Admin1405', 'salt_admin_v3'),
-      twoFactorEnabled: true,
-      twoFactorSecret: '140520',
-      failedAttempts: 0,
-      lockedUntil: 0,
-      createdAt: '۱۴۰۵/۰۱/۱۰',
-      lastActivity: nowFull
-    },
-    {
-      id: 'user-manager-1',
-      name: 'محمد هادی برخوری مهنی',
-      username: 'karimi',
-      roleId: 'role-content-manager',
-      roleLabel: 'مدیر محتوا',
-      grade: 'مدیریت محتوا',
-      active: true,
-      salt: 'salt_karimi_v3',
-      passwordHash: SecurityEngine.hashPassword('Content@1405', 'salt_karimi_v3'),
+      salt: 'sec_salt_9f82b71e',
+      passwordHash: 'pbkdf2_v3$sec_salt_9f82b71e$27fb9660e010ff8f',
       twoFactorEnabled: false,
       failedAttempts: 0,
       lockedUntil: 0,
-      createdAt: '۱۴۰۵/۰۲/۱۵',
+      createdAt: '۱۴۰۵/۰۱/۰۱',
       lastActivity: nowFull
-    },
-    {
-      id: 'user-author-1',
-      name: 'محمد هادی برخوری مهنی',
-      username: 'rezaei',
-      roleId: 'role-author',
-      roleLabel: 'نویسنده',
-      grade: 'نویسنده آموزشی',
-      active: true,
-      salt: 'salt_rezaei_v3',
-      passwordHash: SecurityEngine.hashPassword('Author@1405', 'salt_rezaei_v3'),
-      twoFactorEnabled: false,
-      failedAttempts: 0,
-      lockedUntil: 0,
-      createdAt: '۱۴۰۵/۰۳/۰۵',
-      lastActivity: nowFull
-    },
-    {
-      id: 'user-counselor-1',
-      name: 'محمد هادی برخوری مهنی',
-      username: 'counselor',
-      roleId: 'role-counselor',
-      roleLabel: 'مشاور',
-      grade: 'مشاور و روان‌شناس مدرسه',
-      active: true,
-      salt: 'salt_counselor_v3',
-      passwordHash: SecurityEngine.hashPassword('Counselor@1405', 'salt_counselor_v3'),
-      twoFactorEnabled: false,
-      failedAttempts: 0,
-      lockedUntil: 0,
-      createdAt: '۱۴۰۵/۰۳/۲۰',
-      lastActivity: nowFull
-    },
+    }
+  ];
+  const defaultStudentUsers = [
     {
       id: 'user-student-1',
       name: 'امیرحسین محمدی',
@@ -7917,7 +7875,7 @@ const AuthService = {
         this.pending2FAUser = user;
         return { ok: false, require2FA: true, message: 'لطفاً کد تأیید دو مرحله‌ای (2FA) مدیر کل را وارد نمایید.' };
       }
-      if (String(twoFactorCode).trim() !== String(user.twoFactorSecret || '140520')) {
+      if (String(twoFactorCode).trim() !== String(user.twoFactorSecret || 'SEC_UNSET')) {
         return { ok: false, require2FA: true, error: 'کد احراز هویت دو مرحله‌ای (2FA) نامعتبر است.' };
       }
     }
@@ -10373,83 +10331,52 @@ openSwitchUserModal = function(redirectParams) {
   const cur = STATE.currentUser;
 
   openModal(`
-    <div class="space-y-5">
+    <div class="space-y-5 text-right">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div>
-          <h3 class="text-lg font-black text-navy-900">🔐 درگاه احراز هویت امن و مدیریت نشست کاربری</h3>
-          <p class="text-xs text-slate-500">مجهز به رمزنگاری PBKDF2، محدودیت تلاش ورود ناموفق و احراز هویت دو مرحله‌ای (2FA) مدیر کل</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-navy-900 text-turquoise-400 flex items-center justify-center text-xl font-black">🔐</div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-navy-900">درگاه احراز هویت مدیریت سامانه</h3>
+            <p class="text-[11px] text-slate-500">دبیرستان نمونه دولتی پسرانه باقرالعلوم • امنیت پیشرفته</p>
+          </div>
         </div>
-        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-600 font-bold">✕</button>
+        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-600 font-bold text-xl transition">✕</button>
       </div>
 
       ${isLoggedIn ? `
         <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div>
-            <p class="font-black text-emerald-900">نشست فعال فعلی: ${SecurityEngine.escapeHtml(cur.name)} (${SecurityEngine.escapeHtml(cur.roleLabel)})</p>
-            <p class="text-emerald-700 mt-0.5">شناسه نشست: ${SecurityEngine.escapeHtml(AuthService.currentSession.sessionId.slice(0, 18))}...</p>
+            <p class="font-black text-emerald-900">نشست فعال مدیر: ${SecurityEngine.escapeHtml(cur.name)}</p>
+            <p class="text-emerald-700 text-[11px] mt-0.5">شما با دسترسی کامل به پنل مدیریت وارد شده‌اید.</p>
           </div>
-          <button type="button" onclick="closeModal();AuthService.logout();" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold">خروج امن و ابطال نشست</button>
+          <div class="flex gap-2">
+            <button type="button" onclick="closeModal();navigateTo('admin');" class="px-4 py-2 rounded-xl bg-navy-900 text-white font-bold">ورود به پنل</button>
+            <button type="button" onclick="closeModal();AuthService.logout();" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold">خروج امن</button>
+          </div>
         </div>
       ` : `
-        <div class="p-3.5 rounded-2xl bg-turquoise-50 border border-turquoise-200 flex items-center justify-between text-xs">
-          <span class="font-bold text-turquoise-900">🎓 شما هم‌اکنون در حالت «دسترسی آزاد دانش‌آموز مهمان» هستید (نیازی به ورود برای مطالعه مطالب عمومی نیست).</span>
+        <!-- High-Security Login Form -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 text-xs">
+          <div>
+            <label for="auth-username-inp" class="block font-bold text-slate-800 mb-1.5">نام کاربری مدیریت:</label>
+            <input id="auth-username-inp" type="text" autocomplete="off" placeholder="نام کاربری اختصاصی..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left focus:border-navy-900 focus:ring-1 focus:ring-navy-900 transition" dir="ltr" />
+          </div>
+
+          <div>
+            <label for="auth-password-inp" class="block font-bold text-slate-800 mb-1.5">کلمه عبور امن:</label>
+            <input id="auth-password-inp" type="password" autocomplete="off" placeholder="••••••••••••" onkeydown="if(event.key==='Enter'){submitRealLoginForm()}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left focus:border-navy-900 focus:ring-1 focus:ring-navy-900 transition" dir="ltr" />
+          </div>
+
+          <p id="auth-error-msg" class="hidden text-rose-600 font-bold p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs"></p>
+
+          <div class="pt-2">
+            <button type="button" onclick="submitRealLoginForm()" class="w-full py-3 rounded-xl bg-navy-900 hover:bg-turquoise-600 text-white font-black text-xs transition shadow-md flex items-center justify-center gap-2">
+              <span>🔐</span>
+              <span>بررسی هویت و ورود به پنل مدیریت</span>
+            </button>
+          </div>
         </div>
       `}
-
-      <!-- Real Login Form -->
-      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5 text-xs">
-        <h4 class="font-black text-navy-900 text-sm">ورود به حساب کاربری (مدیر کل / مدیر محتوا / نویسنده / مشاور / دانش‌آموز):</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="auth-username-inp" class="block font-bold text-slate-700 mb-1">نام کاربری:</label>
-            <input id="auth-username-inp" type="text" placeholder="مثلاً: admin یا karimi..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left" dir="ltr" />
-          </div>
-          <div>
-            <label for="auth-password-inp" class="block font-bold text-slate-700 mb-1">رمز عبور:</label>
-            <input id="auth-password-inp" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter'){submitRealLoginForm()}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left" dir="ltr" />
-          </div>
-        </div>
-        <div id="auth-2fa-box" class="hidden p-3.5 rounded-xl bg-amber-50 border border-amber-300 space-y-2">
-          <label for="auth-2fa-inp" class="block font-extrabold text-amber-900">🛡️ کد تأیید دو مرحله‌ای (2FA) مدیر کل (کد فعلی توکن امنیتی: <code class="font-mono bg-white px-1.5 py-0.5 rounded">140520</code>):</label>
-          <input id="auth-2fa-inp" type="text" placeholder="کد ۶ رقمی (140520)" class="w-full px-3.5 py-2 rounded-xl border border-amber-400 bg-white font-mono text-center text-sm font-black tracking-widest" dir="ltr" />
-        </div>
-        <p id="auth-error-msg" class="hidden text-rose-600 font-bold"></p>
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <button type="button" onclick="openPasswordRecoveryModal()" class="text-turquoise-700 hover:underline font-bold">فراموشی و بازیابی رمز عبور؟</button>
-          <button type="button" onclick="submitRealLoginForm()" class="px-6 py-2.5 rounded-xl bg-navy-900 hover:bg-turquoise-600 text-white font-black transition">🔐 بررسی رمز و ورود امن</button>
-        </div>
-      </div>
-
-      <!-- Tester Helper Card for Evaluator Audit -->
-      <div class="p-4 rounded-2xl bg-slate-100 border border-slate-200 space-y-2.5 text-xs">
-        <p class="font-extrabold text-navy-900">🧪 راهنمای جایگذاری سریع اطلاعات ورود ویژه ارزیاب و تست نقش‌ها (با احراز هویت واقعی):</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          <button type="button" onclick="fillDemoLogin('admin','Bagher@Admin1405','140520')" class="p-2.5 rounded-xl bg-white hover:bg-turquoise-50 border border-slate-300 text-right">
-            <p class="font-black text-navy-900">۱. مدیر کل (با 2FA)</p>
-            <p class="text-[10px] text-slate-500 font-mono">admin / Bagher@Admin1405</p>
-          </button>
-          <button type="button" onclick="fillDemoLogin('karimi','Content@1405','')" class="p-2.5 rounded-xl bg-white hover:bg-turquoise-50 border border-slate-300 text-right">
-            <p class="font-black text-navy-900">۲. مدیر محتوا (بدون مجوز انتشار)</p>
-            <p class="text-[10px] text-slate-500 font-mono">karimi / Content@1405</p>
-          </button>
-          <button type="button" onclick="fillDemoLogin('rezaei','Author@1405','')" class="p-2.5 rounded-xl bg-white hover:bg-turquoise-50 border border-slate-300 text-right">
-            <p class="font-black text-navy-900">۳. نویسنده</p>
-            <p class="text-[10px] text-slate-500 font-mono">rezaei / Author@1405</p>
-          </button>
-          <button type="button" onclick="fillDemoLogin('counselor','Counselor@1405','')" class="p-2.5 rounded-xl bg-white hover:bg-turquoise-50 border border-slate-300 text-right">
-            <p class="font-black text-navy-900">۴. مشاور مدرسه</p>
-            <p class="text-[10px] text-slate-500 font-mono">counselor / Counselor@1405</p>
-          </button>
-          <button type="button" onclick="fillDemoLogin('student','Student@1405','')" class="p-2.5 rounded-xl bg-white hover:bg-turquoise-50 border border-slate-300 text-right">
-            <p class="font-black text-navy-900">۵. دانش‌آموز (امیرحسین)</p>
-            <p class="text-[10px] text-slate-500 font-mono">student / Student@1405</p>
-          </button>
-          <button type="button" onclick="closeModal();AuthService.setGuestMode();renderApp();" class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-right">
-            <p class="font-black text-emerald-900">۶. دانش‌آموز مهمان (عمومی)</p>
-            <p class="text-[10px] text-emerald-700">مشاهده آزاد بدون نیاز به ورود</p>
-          </button>
-        </div>
-      </div>
 
       <!-- Optional Student Registration -->
       <div class="pt-3 border-t border-slate-200 space-y-2 text-xs">
@@ -10469,18 +10396,7 @@ openSwitchUserModal = function(redirectParams) {
   `);
 };
 
-window.fillDemoLogin = function(u, p, code2fa) {
-  const uInp = document.getElementById('auth-username-inp');
-  const pInp = document.getElementById('auth-password-inp');
-  const box2fa = document.getElementById('auth-2fa-box');
-  const inp2fa = document.getElementById('auth-2fa-inp');
-  if (uInp) uInp.value = u;
-  if (pInp) pInp.value = p;
-  if (code2fa && box2fa && inp2fa) {
-    box2fa.classList.remove('hidden');
-    inp2fa.value = code2fa;
-  }
-};
+// fillDemoLogin removed for security
 
 window.submitRealLoginForm = function() {
   const u = document.getElementById('auth-username-inp')?.value || '';
@@ -12649,38 +12565,11 @@ window.LiveVisualCMS = LiveVisualCMS;
 //      Direct Article ContentEditable Mode
 // =============================================================================
 
-// 1. Add 1-Click Super Admin + Live Edit Login Helper to Login Modal
-const _origOpenSwitchUserModal = openSwitchUserModal;
-openSwitchUserModal = function(redirectParams) {
-  _origOpenSwitchUserModal(redirectParams);
-  const box = document.getElementById('global-modal-box');
-  if (!box) return;
-  const quickBanner = document.createElement('div');
-  quickBanner.className = 'p-4 rounded-2xl bg-gradient-to-r from-navy-900 to-turquoise-900 text-white border border-turquoise-400/50 flex flex-wrap items-center justify-between gap-3 mb-4 text-xs shadow-lg';
-  quickBanner.innerHTML = `
-    <div>
-      <p class="font-black text-sm text-turquoise-300">⚡ ورود سریع به پنل مدیریت + فعال‌سازی ویرایش زنده صفحات</p>
-      <p class="text-slate-200 mt-0.5">با یک کلیک به عنوان «مدیر کل» وارد شوید و تمام بخش‌های صفحات عمومی را مستقیماً در صفحه ویرایش، اضافه یا حذف کنید.</p>
-    </div>
-    <div class="flex flex-wrap gap-2">
-      <button type="button" onclick="quickLoginSuperAdminLive('home')" class="px-4 py-2.5 rounded-xl bg-turquoise-400 hover:bg-turquoise-300 text-navy-950 font-black shadow transition">
-        🌐 ورود مدیر کل و ویرایش زنده در نمای سایت
-      </button>
-      <button type="button" onclick="quickLoginSuperAdminLive('admin')" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold transition">
-        ⚙️ ورود به داشبورد پنل مدیریت
-      </button>
-    </div>
-  `;
-  box.prepend(quickBanner);
+// Production Hardening: All 1-click bypasses and demo logins are disabled
+window.quickLoginSuperAdminLive = function() {
+  showToast('ورود مستقیم غیرفعال است. لطفاً نام کاربری و رمز عبور را وارد کنید.', 'warning');
 };
 
-window.quickLoginSuperAdminLive = function(targetView) {
-  AuthService.login('admin', 'Bagher@Admin1405', '140520');
-  STATE.liveEditMode = true;
-  closeModal();
-  showToast('✨ با دسترسی کامل «مدیر کل» وارد شدید! ابزارهای ویرایش، افزودن و حذف زنده در بالای تمام صفحات و کارت‌ها فعال گردید.', 'success');
-  navigateTo(targetView || 'home');
-};
 
 
 // Zero-Overlap Post Cover & Post Card Renderer (Fixes badge-over-text and icon-over-badge collisions!)
@@ -14192,15 +14081,14 @@ function enforceSoleCounselorBarkhori() {
   const soleAdminUser = {
     id: 'user-admin-1',
     name: SOLE_COUNSELOR_NAME,
-    username: 'admin',
+    username: 'hadi_admin',
     roleId: 'role-superadmin',
     roleLabel: 'مشاور مدرسه و مدیر کل سامانه',
     grade: 'تنها مشاور و مدیر مجاز سامانه',
     active: true,
-    salt: 'salt_admin_v3',
-    passwordHash: SecurityEngine.hashPassword('Bagher@Admin1405', 'salt_admin_v3'),
-    twoFactorEnabled: true,
-    twoFactorSecret: '140520',
+    salt: 'sec_salt_9f82b71e',
+    passwordHash: 'pbkdf2_v3$sec_salt_9f82b71e$27fb9660e010ff8f',
+    twoFactorEnabled: false,
     failedAttempts: 0,
     lockedUntil: 0,
     createdAt: '۱۴۰۵/۰۱/۰۱',
@@ -14427,92 +14315,81 @@ renderCounselorPageView = function() {
   `;
 };
 
-// Upgrade Login Modal so ONLY Mohammad Hadi Barkhori Mehni is listed as the sole Admin/Counselor/Publisher
+// Secure Production Authentication Modal - Zero bypass, strictly enforced
 openSwitchUserModal = function(redirectParams) {
   const isLoggedIn = AuthService.isAuthenticated();
   const cur = STATE.currentUser;
 
   openModal(`
-    <div class="space-y-5">
-      <!-- Quick 1-Click Banner for Sole Counselor & Admin -->
-      <div class="p-4 rounded-2xl bg-gradient-to-r from-navy-900 to-turquoise-900 text-white border border-turquoise-400/50 flex flex-wrap items-center justify-between gap-3 text-xs shadow-lg">
-        <div>
-          <p class="font-black text-sm text-turquoise-300">⚡ ورود اختصاصی مشاور مدرسه و مدیر کل: استاد ${SOLE_COUNSELOR_NAME}</p>
-          <p class="text-slate-200 mt-0.5">تنها مشاور مدرسه و تنها فرد مجاز برای درج مطلب، ویرایش زنده صفحات و اعمال تغییرات در سایت</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button type="button" onclick="quickLoginSuperAdminLive('home')" class="px-4 py-2.5 rounded-xl bg-turquoise-400 hover:bg-turquoise-300 text-navy-950 font-black shadow transition">
-            🌐 ورود استاد ${SOLE_COUNSELOR_NAME} (ویرایش زنده سایت)
-          </button>
-          <button type="button" onclick="quickLoginSuperAdminLive('admin')" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold transition">
-            ⚙️ ورود به داشبورد پنل مدیریت
-          </button>
-        </div>
-      </div>
-
+    <div class="space-y-5 text-right">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div>
-          <h3 class="text-lg font-black text-navy-900">🔐 درگاه احراز هویت اختصاصی مدیریت سامانه</h3>
-          <p class="text-xs text-slate-500">درج مطلب و اعمال تغییرات در سایت منحصراً در اختیار استاد <strong>${SOLE_COUNSELOR_NAME}</strong> است.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-navy-900 text-turquoise-400 flex items-center justify-center text-xl font-black">🔐</div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-navy-900">درگاه احراز هویت مدیریت سامانه</h3>
+            <p class="text-[11px] text-slate-500">دبیرستان نمونه دولتی پسرانه باقرالعلوم • امنیت پیشرفته</p>
+          </div>
         </div>
-        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-600 font-bold">✕</button>
+        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-600 font-bold text-xl transition">✕</button>
       </div>
 
       ${isLoggedIn ? `
         <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div>
-            <p class="font-black text-emerald-900">نشست فعال فعلی: ${SecurityEngine.escapeHtml(cur.name)} (${SecurityEngine.escapeHtml(cur.roleLabel)})</p>
+            <p class="font-black text-emerald-900">نشست فعال مدیر: ${SecurityEngine.escapeHtml(cur.name)}</p>
+            <p class="text-emerald-700 text-[11px] mt-0.5">شما با دسترسی کامل به پنل مدیریت وارد شده‌اید.</p>
           </div>
-          <button type="button" onclick="closeModal();AuthService.logout();" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold">خروج امن و بازگشت به نمای دانش‌آموز</button>
-        </div>
-      ` : ''}
-
-      <!-- Real Login Form -->
-      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5 text-xs">
-        <h4 class="font-black text-navy-900 text-sm">ورود با نام کاربری و رمز عبور (ویژه استاد ${SOLE_COUNSELOR_NAME}):</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="auth-username-inp" class="block font-bold text-slate-700 mb-1">نام کاربری (admin یا barkhori):</label>
-            <input id="auth-username-inp" type="text" placeholder="admin" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left" dir="ltr" />
-          </div>
-          <div>
-            <label for="auth-password-inp" class="block font-bold text-slate-700 mb-1">رمز عبور:</label>
-            <input id="auth-password-inp" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter'){submitRealLoginForm()}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left" dir="ltr" />
-          </div>
-        </div>
-        <div id="auth-2fa-box" class="hidden p-3.5 rounded-xl bg-amber-50 border border-amber-300 space-y-2">
-          <label for="auth-2fa-inp" class="block font-extrabold text-amber-900">🛡️ کد تأیید دو مرحله‌ای (2FA) مدیر کل (کد: <code class="font-mono bg-white px-1.5 py-0.5 rounded">140520</code>):</label>
-          <input id="auth-2fa-inp" type="text" placeholder="140520" class="w-full px-3.5 py-2 rounded-xl border border-amber-400 bg-white font-mono text-center text-sm font-black tracking-widest" dir="ltr" />
-        </div>
-        <p id="auth-error-msg" class="hidden text-rose-600 font-bold"></p>
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
           <div class="flex gap-2">
-            <button type="button" onclick="fillDemoLogin('admin','Bagher@Admin1405','140520')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 font-bold text-navy-900">جایگذاری مشخصات ورود استاد برخوری مهنی</button>
-            <button type="button" onclick="closeModal();AuthService.setGuestMode();renderApp();" class="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 font-bold text-emerald-800">حالت دانش‌آموز (مشاهده عمومی)</button>
+            <button type="button" onclick="closeModal();navigateTo('admin');" class="px-4 py-2 rounded-xl bg-navy-900 text-white font-bold">ورود به پنل</button>
+            <button type="button" onclick="closeModal();AuthService.logout();" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold">خروج امن</button>
           </div>
-          <button type="button" onclick="submitRealLoginForm()" class="px-6 py-2.5 rounded-xl bg-navy-900 hover:bg-turquoise-600 text-white font-black transition">🔐 بررسی رمز و ورود</button>
         </div>
-      </div>
+      ` : `
+        <!-- High-Security Login Form -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 text-xs">
+          <div>
+            <label for="auth-username-inp" class="block font-bold text-slate-800 mb-1.5">نام کاربری مدیریت:</label>
+            <input id="auth-username-inp" type="text" autocomplete="off" placeholder="نام کاربری اختصاصی..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left focus:border-navy-900 focus:ring-1 focus:ring-navy-900 transition" dir="ltr" />
+          </div>
 
-      <!-- Optional Student Personal Workspace Registration -->
-      <div class="pt-3 border-t border-slate-200 space-y-2 text-xs">
-        <p class="font-bold text-navy-900">ورود یا ثبت‌نام اختیاری دانش‌آموز (صرفاً جهت ذخیره برنامه هفتگی و یادداشت شخصی — بدون دسترسی ویرایش سایت):</p>
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-          <input id="reg-student-name" type="text" placeholder="نام دانش‌آموز..." class="px-3 py-2 rounded-xl border border-slate-300" />
-          <input id="reg-student-pass" type="password" placeholder="رمز عبور دلخواه..." class="px-3 py-2 rounded-xl border border-slate-300 font-mono text-left" dir="ltr" />
-          <select id="reg-student-grade" class="px-3 py-2 rounded-xl border border-slate-300 font-bold">
-            <option value="پایه دهم">پایه دهم</option>
-            <option value="پایه یازدهم">پایه یازدهم</option>
-            <option value="پایه دوازدهم">پایه دوازدهم</option>
-          </select>
-          <button type="button" onclick="registerQuickStudent()" class="px-4 py-2 rounded-xl bg-turquoise-600 text-white font-bold">ورود دانش‌آموز</button>
+          <div>
+            <label for="auth-password-inp" class="block font-bold text-slate-800 mb-1.5">کلمه عبور امن:</label>
+            <input id="auth-password-inp" type="password" autocomplete="off" placeholder="••••••••••••" onkeydown="if(event.key==='Enter'){submitRealLoginForm()}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white font-mono text-left focus:border-navy-900 focus:ring-1 focus:ring-navy-900 transition" dir="ltr" />
+          </div>
+
+          <p id="auth-error-msg" class="hidden text-rose-600 font-bold p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs"></p>
+
+          <div class="pt-2">
+            <button type="button" onclick="submitRealLoginForm()" class="w-full py-3 rounded-xl bg-navy-900 hover:bg-turquoise-600 text-white font-black text-xs transition shadow-md flex items-center justify-center gap-2">
+              <span>🔐</span>
+              <span>بررسی هویت و ورود به پنل مدیریت</span>
+            </button>
+          </div>
         </div>
-      </div>
+
+        <!-- Student Optional Portal -->
+        <details class="pt-2 border-t border-slate-200 text-xs text-slate-600">
+          <summary class="font-bold cursor-pointer hover:text-navy-900 select-none py-1">
+            🎓 ورود / ثبت‌نام اختیاری دانش‌آموزان (صرفاً ابزارهای مطالعه شخصی)
+          </summary>
+          <div class="mt-3 space-y-2.5 p-3 rounded-xl bg-slate-100 border border-slate-200">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input id="reg-student-name" type="text" placeholder="نام دانش‌آموز..." class="px-3 py-2 rounded-xl border border-slate-300 bg-white" />
+              <input id="reg-student-pass" type="password" placeholder="رمز دلخواه..." class="px-3 py-2 rounded-xl border border-slate-300 bg-white font-mono text-left" dir="ltr" />
+              <select id="reg-student-grade" class="px-3 py-2 rounded-xl border border-slate-300 bg-white font-bold">
+                <option value="پایه دهم">پایه دهم</option>
+                <option value="پایه یازدهم">پایه یازدهم</option>
+                <option value="پایه دوازدهم">پایه دوازدهم</option>
+              </select>
+            </div>
+            <button type="button" onclick="registerQuickStudent()" class="w-full py-2 rounded-xl bg-turquoise-600 hover:bg-turquoise-500 text-white font-bold text-xs">ورود دانش‌آموز</button>
+          </div>
+        </details>
+      `}
     </div>
   `);
 };
 
-// Apply exclusive counselor enforcement immediately on load
 enforceSoleCounselorBarkhori();
 syncStaticShellWithSiteSettings();
 renderApp();
