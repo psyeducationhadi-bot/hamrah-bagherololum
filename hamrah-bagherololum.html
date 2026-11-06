@@ -2407,11 +2407,204 @@
 
     function saveDatabase(dbObj) {
       try {
+        if (!dbObj && typeof DB !== 'undefined' && DB) {
+          DB.lastLocalEdit = Date.now();
+        } else if (dbObj) {
+          dbObj.lastLocalEdit = Date.now();
+        }
         localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(dbObj || DB));
       } catch (e) {
         console.warn('Storage write notice:', e);
       }
     }
+
+    // =========================================================================
+    // CLOUD DATABASE SYNC ENGINE (GitHub API Real-Time Backend)
+    // =========================================================================
+    const CloudSync = {
+      REPO: 'psyeducationhadi-bot/hamrah-bagherololum',
+      BRANCH: 'main',
+      FILE_PATH: 'db.json',
+      TOKEN_KEY: 'HAMRAH_ADMIN_GH_TOKEN',
+      LAST_SYNC_KEY: 'HAMRAH_LAST_CLOUD_SYNC',
+
+      getToken() {
+        return localStorage.getItem(this.TOKEN_KEY) || '';
+      },
+
+      setToken(t) {
+        localStorage.setItem(this.TOKEN_KEY, (t || '').trim());
+      },
+
+      utf8ToBase64(str) {
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+          return String.fromCharCode('0x' + p1);
+        }));
+      },
+
+      async publishToCloud() {
+        const token = this.getToken();
+        if (!token) {
+          this.openConfigModal(true);
+          return;
+        }
+
+        showToast('⏳ در حال اتصال به سرور ابری و انتشار آنلاین...', 'info');
+
+        try {
+          const getUrl = `https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}?ref=${this.BRANCH}`;
+          const getRes = await fetch(getUrl, {
+            headers: {
+              'Accept': 'application/vnd.github.v3+json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          let sha = '';
+          if (getRes.ok) {
+            const data = await getRes.json();
+            sha = data.sha;
+          } else if (getRes.status === 401 || getRes.status === 403) {
+            showToast('❌ توکن دسترسی معتبر نیست یا دسترسی لازم ندارد.', 'error');
+            this.openConfigModal(true);
+            return;
+          }
+
+          DB.lastPublished = Date.now();
+          DB.lastPublishedDateFa = new Date().toLocaleDateString('fa-IR') + ' ' + new Date().toLocaleTimeString('fa-IR');
+          saveDatabase(DB);
+
+          const payload = {
+            message: `Update site database from Admin CMS [${DB.lastPublishedDateFa}]`,
+            content: this.utf8ToBase64(JSON.stringify(DB, null, 2)),
+            branch: this.BRANCH
+          };
+          if (sha) payload.sha = sha;
+
+          const putUrl = `https://api.github.com/repos/${this.REPO}/contents/${this.FILE_PATH}`;
+          const putRes = await fetch(putUrl, {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/vnd.github.v3+json',
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (putRes.ok) {
+            localStorage.setItem(this.LAST_SYNC_KEY, new Date().toISOString());
+            showToast('🎉 تغییرات با موفقیت روی سرور آنلاین منتشر شد! اکنون تمام کاربران این نسخه را مشاهده می‌کنند.', 'success');
+            if (typeof logAdminAction === 'function') {
+              logAdminAction('انتشار آنلاین تغییرات سایت در سرور');
+            }
+            renderApp();
+          } else {
+            const err = await putRes.json().catch(() => ({}));
+            showToast('❌ خطا در انتشار روی سرور: ' + (err.message || putRes.statusText), 'error');
+          }
+        } catch (e) {
+          console.error('Publish error:', e);
+          showToast('❌ خطای ارتباطی در ارسال داده‌ها به سرور.', 'error');
+        }
+      },
+
+      async fetchFromCloud(forceToast = false) {
+        try {
+          const hasLocalUnpublished = DB && DB.lastLocalEdit && DB.lastLocalEdit > (DB.lastPublished || 0);
+          if (hasLocalUnpublished && !forceToast) {
+            console.log('Admin has local unpublished edits; preserving local state.');
+            return;
+          }
+
+          const sources = [
+            `./db.json?v=${Date.now()}`,
+            `https://raw.githubusercontent.com/${this.REPO}/${this.BRANCH}/${this.FILE_PATH}?v=${Date.now()}`
+          ];
+
+          let remoteDb = null;
+          for (const s of sources) {
+            try {
+              const res = await fetch(s, { cache: 'no-store' });
+              if (res.ok) {
+                remoteDb = await res.json();
+                if (remoteDb && Array.isArray(remoteDb.categories) && remoteDb.categories.length >= 19) {
+                  break;
+                }
+              }
+            } catch (_) {}
+          }
+
+          if (remoteDb) {
+            const preservedStudentData = (DB && DB.studentData) ? DB.studentData : null;
+            DB = remoteDb;
+            if (preservedStudentData) {
+              DB.studentData = preservedStudentData;
+            }
+            saveDatabase(DB);
+            if (forceToast) {
+              showToast('✅ آخرین داده‌های سامانه از سرور دریافت و به‌روزرسانی شد.', 'success');
+            }
+            renderApp();
+          }
+        } catch (e) {
+          console.warn('Cloud sync fetch error:', e);
+          if (forceToast) {
+            showToast('❌ دریافت اطلاعات آنلاین با مشکل مواجه شد.', 'error');
+          }
+        }
+      },
+
+      openConfigModal(autoFocus = false) {
+        const curToken = this.getToken();
+        const masked = curToken ? (curToken.slice(0, 7) + '...' + curToken.slice(-4)) : 'تنظیم نشده';
+        openModal(`
+          <div class="space-y-4 text-right">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🌐</span>
+                <div>
+                  <h3 class="text-base sm:text-lg font-black text-navy-900">تنظیمات پایگاه داده ابری آنلاین (GitHub Sync)</h3>
+                  <p class="text-[11px] text-slate-500">مخزن فعال: ${this.REPO}</p>
+                </div>
+              </div>
+              <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-600 font-bold text-xl">✕</button>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+              این قابلیت به پنل مدیریت اجازه می‌دهد به محض ایجاد مطلب یا اعمال تغییرات، داده‌های آنلاین <code class="font-mono text-navy-900">db.json</code> را به‌روز کند تا برای تمام بازدیدکنندگان در لحظه فعال شود.
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">کلید دسترسی ادمین (GitHub Token):</label>
+              <input type="password" id="cloud-sync-token-field" value="${curToken}" placeholder="gho_... یا ghp_..." class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:border-turquoise-500 focus:ring-1 focus:ring-turquoise-500 font-mono text-left" dir="ltr" />
+              <p class="text-[11px] text-slate-400">وضعیت کلید فعلی: <span class="font-mono text-navy-800 font-bold">${masked}</span></p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 pt-2">
+              <button type="button" onclick="CloudSync.saveTokenAndPublish()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition shadow-sm">
+                💾 ذخیره توکن و انتشار آنلاین
+              </button>
+              <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                انصراف
+              </button>
+            </div>
+          </div>
+        `);
+      },
+
+      saveTokenAndPublish() {
+        const input = document.getElementById('cloud-sync-token-field');
+        if (input && input.value.trim()) {
+          this.setToken(input.value.trim());
+          closeModal();
+          showToast('✅ توکن با موفقیت در مرورگر ذخیره شد.', 'success');
+          this.publishToCloud();
+        } else {
+          showToast('لطفاً توکن را وارد کنید.', 'error');
+        }
+      }
+    };
 
     let DB = loadDatabase();
 
@@ -5941,7 +6134,41 @@
       } else {
         mainPanelHtml = `
           <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 text-xs sm:text-sm">
-            <h2 class="text-lg sm:text-xl font-black text-navy-900">🛡️ امنیت، حفاظت از اطلاعات و پشتیبان‌گیری پایگاه داده</h2>
+            <!-- Cloud Database Live Sync Section -->
+            <div class="p-6 rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 text-white border border-navy-800 shadow-md space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-navy-800/80 pb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xl">🌐</div>
+                  <div>
+                    <h3 class="font-black text-base text-white">پایگاه داده ابری آنلاین (GitHub Cloud Sync Engine)</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">مخزن متصل: <code class="text-turquoise-300 font-mono">psyeducationhadi-bot/hamrah-bagherololum</code> (شاخه main)</p>
+                  </div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold self-start sm:self-auto">
+                  🟢 آماده انتشار آنلاین
+                </span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                با کلیک بر روی «انتشار آنلاین»، تمامی ۱۹ دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و اخبار مستقیماً روی سرور آنلاین آپدیت شده و بلافاصله برای تمامی دانش‌آموزان و بازدیدکنندگان در تمام دنیا اعمال می‌گردد.
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button type="button" onclick="CloudSync.publishToCloud()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs transition shadow-md flex items-center gap-2">
+                  <span>🚀</span>
+                  <span>انتشار آنلاین تغییرات فعلی در سایت</span>
+                </button>
+                <button type="button" onclick="CloudSync.fetchFromCloud(true)" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-2">
+                  <span>📥</span>
+                  <span>دریافت آخرین نسخه از سرور آنلاین</span>
+                </button>
+                <button type="button" onclick="CloudSync.openConfigModal()" class="px-4 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white font-bold text-xs transition flex items-center gap-1.5 border border-navy-700">
+                  <span>⚙️</span>
+                  <span>تنظیم توکن مدیر</span>
+                </button>
+              </div>
+              ${DB.lastPublishedDateFa ? `<p class="text-[11px] text-slate-400 pt-1">آخرین انتشار موفق در سرور: <span class="text-turquoise-300 font-bold">${DB.lastPublishedDateFa}</span></p>` : ''}
+            </div>
+
+            <h2 class="text-lg sm:text-xl font-black text-navy-900 pt-2">🛡️ امنیت، حفاظت از اطلاعات و نسخه‌های پشتیبان دستی</h2>
             <p class="text-slate-600 leading-relaxed">
               تمامی داده‌های سامانه «همراه باقرالعلوم» در پایگاه داده پایدار مرورگر ذخیره می‌شوند. شما می‌توانید در هر لحظه از کل پایگاه داده (شامل ۱۹ دسته‌بندی، زیرعنوان‌ها، مقالات، آزمون‌ها و کاربران) خروجی JSON تهیه کرده یا فایل پشتیبان قبلی را بازیابی نمایید.
             </p>
@@ -5987,10 +6214,33 @@
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="CloudSync.publishToCloud()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs transition flex items-center gap-1.5 shadow-md" title="انتشار فوری تغییرات در سرور آنلاین برای تمام کاربران">
+                  <span>🚀</span>
+                  <span>انتشار آنلاین در سایت</span>
+                </button>
+                <button type="button" onclick="CloudSync.openConfigModal()" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-1" title="تنظیمات سرور ابری">
+                  <span>🌐</span>
+                  <span>سرور آنلاین</span>
+                </button>
                 <button type="button" onclick="openEditorForNewPost()" class="px-4 py-2 rounded-xl bg-turquoise-500 hover:bg-turquoise-400 text-navy-950 font-black text-xs transition">+ مطلب جدید</button>
                 <button type="button" onclick="navigateTo('home')" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition">👁️ مشاهده نمای عمومی سایت</button>
               </div>
             </div>
+
+            ${(DB.lastLocalEdit && DB.lastLocalEdit > (DB.lastPublished || 0)) ? `
+            <div class="p-4 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-950 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">⚠️</span>
+                <div>
+                  <p class="font-extrabold text-amber-900">تغییرات ذخیره‌نشده روی سرور ابری وجود دارد!</p>
+                  <p class="text-[11px] text-amber-800 mt-0.5">تغییراتی که اخیراً در پنل داده‌اید هنوز روی سرور منتشر نشده است و دیگران آن را نمی‌بینند.</p>
+                </div>
+              </div>
+              <button type="button" onclick="CloudSync.publishToCloud()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shrink-0 transition shadow">
+                🚀 انتشار آنلاین فوری برای همه
+              </button>
+            </div>
+          ` : ''}
 
             <!-- Admin Navigation Pills -->
             <div class="flex flex-wrap gap-2">
@@ -14779,6 +15029,9 @@ renderCategoriesListView = function() {
 
 enrichAllSubcategoriesWithVisualMeta();
 renderApp();
+if (typeof CloudSync !== 'undefined' && CloudSync.fetchFromCloud) {
+  CloudSync.fetchFromCloud();
+}
 
   </script>
 
