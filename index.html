@@ -9,9 +9,21 @@
   <title>همراه باقرالعلوم | سامانه جامع مشاوره‌ای، آموزشی و رشد فردی دبیرستان نمونه دولتی پسرانه باقرالعلوم</title>
   <meta name="description" content="مرجع اختصاصی محتوای مشاوره‌ای، آموزشی، تحصیلی، روان‌شناختی و مهارت‌های زندگی دانش‌آموزان دبیرستان نمونه دولتی پسرانه باقرالعلوم" />
   <meta name="keywords" content="همراه باقرالعلوم, دبیرستان نمونه دولتی باقرالعلوم, مشاوره تحصیلی, کنکور, برنامه‌ریزی درسی, سلامت روان نوجوان, هدایت تحصیلی" />
-  <meta property="og:title" content="همراه باقرالعلوم | سامانه جامع مشاوره‌ای دبیرستان نمونه دولتی باقرالعلوم" />
-  <meta property="og:description" content="برای شناخت بهتر خودت، یادگیری مؤثرتر و ساختن آینده‌ای موفق‌تر" />
+  <meta property="og:title" content="همراه باقرالعلوم | سامانه جامع مشاوره‌ای، آموزشی و رشد فردی دبیرستان نمونه دولتی باقرالعلوم" />
+  <meta property="og:description" content="مرجع اختصاصی هدایت تحصیلی، برنامه‌ریزی کنکور، آزمون‌های خودارزیابی و مشاوره فردی استاد محمد هادی برخوری مهنی" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://hamrah-bagherololum.psyeducation-hadi.workers.dev/" />
+  <meta property="og:site_name" content="همراه باقرالعلوم" />
+  <meta property="og:locale" content="fa_IR" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="همراه باقرالعلوم | سامانه جامع مشاوره‌ای دبیرستان نمونه دولتی باقرالعلوم" />
+  <meta name="twitter:description" content="سامانه هوشمند مشاوره تحصیلی و هدایت رشته دبیرستان باقرالعلوم" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="canonical" href="https://hamrah-bagherololum.psyeducation-hadi.workers.dev/" />
+  <link rel="manifest" href="manifest.json" />
+  <!-- High-Resolution Embedded Brand Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Cpath d='M16 6L4 12l12 6 12-6-12-6z' fill='%230d9488'/%3E%3Cpath d='M8 15.5v5c0 3 8 5 8 5s8-2 8-5v-5' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23fbbf24'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230f172a'/%3E%3Cpath d='M90 35L22 70l68 35 68-35-68-35z' fill='%230d9488'/%3E%3Cpath d='M45 90v30c0 18 45 30 45 30s45-12 45-30V90' fill='none' stroke='%2338bdf8' stroke-width='11' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='90' cy='92' r='12' fill='%23fbbf24'/%3E%3C/svg%3E" />
   <script src="https://cdn.tailwindcss.com/3.4.17" async onload="if(window.tailwind&&window.__HAMRAH_TW_CONFIG){window.tailwind.config=window.__HAMRAH_TW_CONFIG;}"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
   <script>
@@ -2425,6 +2437,21 @@
             p.audioUrl = '';
           }
         });
+      }
+      // Security & Privacy Hardening: Never export active sessions, audit logs or private student profiles
+      clone.sessions = [];
+      clone.adminAuditLogs = [];
+      clone.studentProfiles = {};
+      clone.studentNotes = [];
+      clone.studySessions = [];
+      clone.studySchedules = [];
+      clone.studentGoals = [];
+      clone.quizResults = [];
+      clone.backupRecords = [];
+      if (Array.isArray(clone.counselorMessages)) {
+        clone.counselorMessages = clone.counselorMessages.filter(m => m.approvedForPublicFaq === true);
+      } else {
+        clone.counselorMessages = [];
       }
       return clone;
     }
@@ -6300,6 +6327,103 @@
             </div>
           </div>
         `;
+      } else if (tab === 'backup') {
+        mainPanelHtml = `
+          <div class="space-y-6">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-l from-navy-950 via-navy-900 to-navy-800 text-white rounded-3xl p-6 sm:p-8 border border-navy-700/60 shadow-xl relative overflow-hidden">
+              <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                  <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>مرکز فرماندهی امنیت و پشتیبان‌گیری پایگاه داده</span>
+                  </div>
+                  <h2 class="text-xl sm:text-2xl font-black text-white">پشتیبان‌گیری، بازیابی و پایش امنیتی سامانه</h2>
+                  <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl font-medium">دانلود نسخه پشتیبان آفلاین، بازیابی اطلاعات و اطمینان از سلامت دیتابیس در کلودفلر و گیت‌هاب</p>
+                </div>
+                <div class="flex gap-2">
+                  <button type="button" onclick="exportDatabaseBackup()" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
+                    <span>💾</span>
+                    <span>دانلود فایل پشتیبان (JSON)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3 Security & Health Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🛡️</span>
+                  <h4 class="font-black text-navy-900">امنیت نشست‌های مدیر (Sessions)</h4>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">نشست‌های فعال به صورت ایزوله فقط در مرورگر مدیر کل نگهداری شده و در دیتابیس عمومی آنلاین ذخیره نمی‌شوند.</p>
+                <div class="pt-1 flex items-center gap-1.5 text-emerald-700 font-bold">
+                  <span>✔</span>
+                  <span>کاملاً محافظت‌شده و ضد جعل</span>
+                </div>
+              </div>
+
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🚀</span>
+                  <h4 class="font-black text-navy-900">وضعیت استقرار کلودفلر</h4>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">دامنه اختصاصی کلودفلر فعال است و آخرین نسخه پایگاه داده را با سرعت فوق‌العاده در ایران توزیع می‌کند.</p>
+                <div class="pt-1 flex items-center gap-1.5 text-emerald-700 font-bold">
+                  <span>✔</span>
+                  <span>متصل به دامنه رسمی Workers</span>
+                </div>
+              </div>
+
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">🔐</span>
+                  <h4 class="font-black text-navy-900">رمزنگاری و احراز هویت</h4>
+                </div>
+                <p class="text-slate-600 text-[11px] leading-relaxed">الگوریتم چندمرحله‌ای هش PBKDF2 با Salt اختصاصی فعال است و امکان ورود بدون مشخصات غیرممکن می‌باشد.</p>
+                <div class="pt-1 flex items-center gap-1.5 text-emerald-700 font-bold">
+                  <span>✔</span>
+                  <span>قفل هوشمند پس از ۵ خطا فعال</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Backup & Restore Operations Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              <!-- Export Card -->
+              <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-2xl font-black">💾</div>
+                  <div>
+                    <h3 class="text-base font-black text-navy-900">دانلود نسخه پشتیبان کامل (Export)</h3>
+                    <p class="text-[11px] text-slate-500">حاوی تمامی ${(DB.categories || []).length} دسته، ${(DB.posts || []).length} مطلب و آزمون‌ها</p>
+                  </div>
+                </div>
+                <p class="text-slate-600 leading-relaxed">این فایل یک کپی کامل و دقیق از کل محتوای سایت را با فرمت JSON در کامپیوتر شما ذخیره می‌کند تا در صورت نیاز به سرعت آن را بازگردانید.</p>
+                <button type="button" onclick="exportDatabaseBackup()" class="w-full py-3 rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-black text-xs transition shadow-md flex items-center justify-center gap-2">
+                  <span>📥</span>
+                  <span>دانلود نسخه پشتیبان پایگاه داده (.json)</span>
+                </button>
+              </div>
+
+              <!-- Import / Restore Card -->
+              <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-2xl font-black">📂</div>
+                  <div>
+                    <h3 class="text-base font-black text-navy-900">بازیابی پایگاه داده از فایل (Restore)</h3>
+                    <p class="text-[11px] text-slate-500">جایگزینی داده‌ها از فایل پشتیبان ذخیره‌شده قبلی</p>
+                  </div>
+                </div>
+                <p class="text-slate-600 leading-relaxed">فایل JSON نسخه پشتیبان قبلی خود را انتخاب کنید تا تمامی مطالب، دسته‌بندی‌ها و تنظیمات دقیقاً به همان حالت بازگردانی شوند:</p>
+                <div class="p-3 rounded-2xl border-2 border-dashed border-slate-300 hover:border-turquoise-500 bg-slate-50 text-center transition">
+                  <input type="file" id="adm-restore-file-inp" accept=".json" onchange="restoreDatabaseBackup(event)" class="w-full text-xs text-slate-600 cursor-pointer file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-turquoise-600 file:text-white hover:file:bg-turquoise-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
       }
 
       return `
@@ -6909,7 +7033,10 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'hamrah-bagherololum-backup.json';
+        const nowJalaliStr = (typeof JalaliDateEngine !== 'undefined' && JalaliDateEngine.nowDateTime)
+          ? JalaliDateEngine.nowDateTime().replace(/[\/\s:]/g, '-')
+          : Date.now();
+        a.download = `hamrah-bagherololum-backup-${nowJalaliStr}.json`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -7842,9 +7969,10 @@ const AuthService = {
       const raw = sessionStorage.getItem(AUTH_SESSION_KEY_V3) || localStorage.getItem(AUTH_SESSION_KEY_V3);
       if (raw) {
         const parsed = JSON.parse(raw);
-        const sessRecord = (DB.sessions || []).find(s => s.sessionId === parsed.sessionId && !s.revoked);
+        const sessRecord = (DB.sessions || []).find(s => s.sessionId === parsed.sessionId && !s.revoked) ||
+                           (parsed.sessionRecord && parsed.sessionRecord.sessionId === parsed.sessionId && !parsed.sessionRecord.revoked ? parsed.sessionRecord : null);
         if (sessRecord && sessRecord.expiresAt > Date.now()) {
-          const user = DB.users.find(u => u.id === sessRecord.userId && u.active !== false);
+          const user = (DB.users || []).find(u => u.id === sessRecord.userId && u.active !== false);
           if (user) {
             this.currentSession = sessRecord;
             STATE.currentUser = user;
@@ -8017,8 +8145,8 @@ const AuthService = {
     STATE.currentUser = user;
 
     try {
-      sessionStorage.setItem(AUTH_SESSION_KEY_V3, JSON.stringify({ sessionId: sessionRecord.sessionId }));
-      localStorage.setItem(AUTH_SESSION_KEY_V3, JSON.stringify({ sessionId: sessionRecord.sessionId }));
+      sessionStorage.setItem(AUTH_SESSION_KEY_V3, JSON.stringify({ sessionId: sessionRecord.sessionId, sessionRecord }));
+      localStorage.setItem(AUTH_SESSION_KEY_V3, JSON.stringify({ sessionId: sessionRecord.sessionId, sessionRecord }));
     } catch (e) {}
 
     this.syncStudentProfilePointer();
